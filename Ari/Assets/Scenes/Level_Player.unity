@@ -296,12 +296,10 @@ GameObject:
   - component: {fileID: 828664062}
   - component: {fileID: 828664061}
   - component: {fileID: 828664064}
-  - component: {fileID: 828664068}
-  - component: {fileID: 828664067}
-  - component: {fileID: 828664066}
   - component: {fileID: 828664065}
   - component: {fileID: 828664069}
   - component: {fileID: 828664070}
+  - component: {fileID: 828664071}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -401,7 +399,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1513816648}
@@ -443,7 +441,7 @@ CapsuleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 1, y: 2}
+  m_Size: {x: 0.6, y: 0.7}
   m_Direction: 0
 --- !u!95 &828664065
 Animator:
@@ -467,84 +465,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &828664066
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 828664060}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b20cb9c4633ce4947a44f17e5a529397, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  velocidade: 8
-  aceleracaoNoChao: 60
-  aceleracaoNoAr: 40
-  forcaPulo: 14
-  coyoteTime: 0.1
-  jumpBuffer: 0.1
-  gravidadeDescida: 2.5
-  gravidadeSubida: 2
-  groundCheck: {fileID: 1513816648}
-  groundCheckRadius: 0.12
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 64
-  animator: {fileID: 0}
---- !u!114 &828664067
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 828664060}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b20cb9c4633ce4947a44f17e5a529397, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  velocidade: 8
-  aceleracaoNoChao: 60
-  aceleracaoNoAr: 40
-  forcaPulo: 14
-  coyoteTime: 0.1
-  jumpBuffer: 0.1
-  gravidadeDescida: 2.5
-  gravidadeSubida: 2
-  groundCheck: {fileID: 0}
-  groundCheckRadius: 0.12
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 0
-  animator: {fileID: 0}
---- !u!114 &828664068
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 828664060}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b20cb9c4633ce4947a44f17e5a529397, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  velocidade: 8
-  aceleracaoNoChao: 60
-  aceleracaoNoAr: 40
-  forcaPulo: 14
-  coyoteTime: 0.1
-  jumpBuffer: 0.1
-  gravidadeDescida: 2.5
-  gravidadeSubida: 2
-  groundCheck: {fileID: 0}
-  groundCheckRadius: 0.12
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 0
-  animator: {fileID: 0}
 --- !u!114 &828664069
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -582,6 +502,38 @@ MonoBehaviour:
   spawnMargin: 0.08
   recoilKick: 0
   animator: {fileID: 0}
+--- !u!114 &828664071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 828664060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce4c3b6045c3e438a8487ab6726c9c96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  walkSpeed: 3.5
+  runSpeed: 8
+  aceleracaoNoChao: 60
+  aceleracaoNoAr: 40
+  forcaPulo: 14
+  coyoteTime: 0.12
+  jumpBuffer: 0.12
+  gravidadeDescida: 2.5
+  gravidadeSubida: 2
+  groundCheck: {fileID: 0}
+  groundCheckRadius: 0.12
+  groundMask:
+    m_Bits: 0
+  animator: {fileID: 0}
+  rb: {fileID: 0}
+  sr: {fileID: 0}
+  col: {fileID: 0}
+  inputX: 0
+  coyoteTimer: 0
+  jumpBufferTimer: 0
 --- !u!1 &997936799
 GameObject:
   m_ObjectHideFlags: 0
@@ -744,7 +696,7 @@ Transform:
   m_GameObject: {fileID: 1513816647}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.6, z: 0}
+  m_LocalPosition: {x: 0, y: -0.05, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
