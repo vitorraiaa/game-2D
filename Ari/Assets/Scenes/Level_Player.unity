@@ -378,7 +378,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
+  m_Sprite: {fileID: 5905681027756182028, guid: 311e822bd27424e599c691159736a766, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -511,7 +511,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 828664060}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce4c3b6045c3e438a8487ab6726c9c96, type: 3}
+  m_Script: {fileID: 11500000, guid: 915ab9eadbaf446159d0875257bb24aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   walkSpeed: 3.5
@@ -523,17 +523,14 @@ MonoBehaviour:
   jumpBuffer: 0.12
   gravidadeDescida: 2.5
   gravidadeSubida: 2
+  limitarAlturaDoPulo: 1
+  tempoMaxSubida: 0.12
   groundCheck: {fileID: 0}
   groundCheckRadius: 0.12
   groundMask:
+    serializedVersion: 2
     m_Bits: 0
   animator: {fileID: 0}
-  rb: {fileID: 0}
-  sr: {fileID: 0}
-  col: {fileID: 0}
-  inputX: 0
-  coyoteTimer: 0
-  jumpBufferTimer: 0
 --- !u!1 &997936799
 GameObject:
   m_ObjectHideFlags: 0
