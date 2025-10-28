@@ -44,6 +44,9 @@ TagManager:
   - name: Tiles
     uniqueID: 3963368939
     locked: 0
+  - name: Projectiles
+    uniqueID: 1023239155
+    locked: 0
   - name: Details
     uniqueID: 738356073
     locked: 0

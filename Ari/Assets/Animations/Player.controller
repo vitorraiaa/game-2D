@@ -61,7 +61,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Player_Attack
-  m_Speed: 0.5
+  m_Speed: 0.4
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 3189502704595958468}
@@ -88,7 +88,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Locomotion
-  m_Speed: 0.5
+  m_Speed: 0.2
   m_CycleOffset: 0
   m_Transitions: []
   m_StateMachineBehaviours: []
@@ -184,7 +184,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Player_JumpFull
-  m_Speed: 1
+  m_Speed: 0.2
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 5784034255867546122}
@@ -211,7 +211,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Player_RunAttack
-  m_Speed: 1
+  m_Speed: 0.4
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 8834373840481161375}
@@ -312,7 +312,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Player_WalkAttack
-  m_Speed: 1
+  m_Speed: 0.4
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 8637080322470377025}
@@ -398,13 +398,13 @@ AnimatorStateMachine:
     m_Position: {x: -350, y: 440, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -1189604775520236028}
-    m_Position: {x: 40, y: 620, z: 0}
+    m_Position: {x: -130, y: 620, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 5375447684970250114}
-    m_Position: {x: 180, y: 830, z: 0}
+    m_Position: {x: 280, y: 780, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -203373871066463662}
-    m_Position: {x: 230, y: 700, z: 0}
+    m_Position: {x: 320, y: 660, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -2957931082011875123}
     m_Position: {x: 30, y: 470, z: 0}
@@ -417,7 +417,7 @@ AnimatorStateMachine:
   m_EntryTransitions: []
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []
-  m_AnyStatePosition: {x: -310, y: 630, z: 0}
+  m_AnyStatePosition: {x: -430, y: 680, z: 0}
   m_EntryPosition: {x: -210, y: 210, z: 0}
   m_ExitPosition: {x: 640, y: 360, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
