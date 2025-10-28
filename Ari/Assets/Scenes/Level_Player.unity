@@ -144,7 +144,7 @@ Transform:
   m_GameObject: {fileID: 144116086}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 0, z: 0}
+  m_LocalPosition: {x: 0.2, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -297,7 +297,6 @@ GameObject:
   - component: {fileID: 828664061}
   - component: {fileID: 828664064}
   - component: {fileID: 828664065}
-  - component: {fileID: 828664069}
   - component: {fileID: 828664070}
   - component: {fileID: 828664071}
   m_Layer: 7
@@ -440,8 +439,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.6, y: 0.7}
+  m_Offset: {x: -0.014096081, y: 0.0077120266}
+  m_Size: {x: 0.605639, y: 0.605639}
   m_Direction: 0
 --- !u!95 &828664065
 Animator:
@@ -465,24 +464,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &828664069
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 828664060}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 963441a9ec30a4b878cab882239e2dd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 828664065}
-  layer: 0
-  logTransitions: 1
-  logParameters: 0
-  showOverlay: 1
-  toggleOverlayKey: 284
 --- !u!114 &828664070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -501,6 +482,10 @@ MonoBehaviour:
   fireRate: 6
   spawnMargin: 0.08
   recoilKick: 0
+  hasExtraAttackPower: 0
+  extraBulletPrefab: {fileID: 0}
+  extraBulletSpeed: 20
+  extraFireRate: 2.5
   animator: {fileID: 0}
 --- !u!114 &828664071
 MonoBehaviour:
@@ -525,11 +510,18 @@ MonoBehaviour:
   gravidadeSubida: 2
   limitarAlturaDoPulo: 1
   tempoMaxSubida: 0.12
-  groundCheck: {fileID: 0}
+  hasHighJumpPower: 1
+  highJumpForce: 18
+  highJumpCoyote: 0.1
+  groundCheck: {fileID: 1513816648}
   groundCheckRadius: 0.12
   groundMask:
     serializedVersion: 2
     m_Bits: 0
+  ladderLayerName: Ladder
+  climbSpeed: 3
+  descendExtra: 1
+  climbExitHorizontalBoost: 0
   animator: {fileID: 0}
 --- !u!1 &997936799
 GameObject:
@@ -668,6 +660,84 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!1 &1154242944
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1154242946}
+  - component: {fileID: 1154242945}
+  m_Layer: 9
+  m_Name: Ladder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!61 &1154242945
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1154242944}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -0.55986524, y: 9.849747}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 2.1197305, y: 4.5909986}
+  m_EdgeRadius: 0
+--- !u!4 &1154242946
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1154242944}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.8811975, y: -9.4047365, z: -0.13766314}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1513816647
 GameObject:
   m_ObjectHideFlags: 0
@@ -706,3 +776,4 @@ SceneRoots:
   - {fileID: 997936802}
   - {fileID: 249482956}
   - {fileID: 828664063}
+  - {fileID: 1154242946}

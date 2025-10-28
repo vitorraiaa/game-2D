@@ -8,14 +8,21 @@ public class PlayerShoot2D : MonoBehaviour
     public Transform shootPoint;
     public GameObject bulletPrefab;
     public float bulletSpeed = 18f;
-    public float fireRate = 6f;        // tiros por segundo
-    public float spawnMargin = 0.08f;  // distância extra além do collider do player
+    public float fireRate = 6f;
+    public float spawnMargin = 0.08f;
     public float recoilKick = 0f;
 
-    [Header("Animator (opcional)")]
+    [Header("Extra Attack (power-up)")]
+    public bool hasExtraAttackPower = false;
+    public GameObject extraBulletPrefab;
+    public float extraBulletSpeed = 20f;
+    public float extraFireRate = 2.5f;
+
+    [Header("Animator")]
     public Animator animator;
 
     float cooldown;
+    float cooldownExtra;
     SpriteRenderer sr;
     Rigidbody2D rb;
     Collider2D[] playerCols;
@@ -31,42 +38,40 @@ public class PlayerShoot2D : MonoBehaviour
     void Update()
     {
         cooldown -= Time.deltaTime;
+        cooldownExtra -= Time.deltaTime;
+
+        // tiro normal
         bool fire = Input.GetButton("Fire1") || Input.GetMouseButton(0);
-        if (fire && cooldown <= 0f)
+        if (fire && cooldown <= 0f) { ShootOnce(bulletPrefab, bulletSpeed, "Attack"); cooldown = 1f / Mathf.Max(0.01f, fireRate); }
+
+        // extra attack (botão direito / E)
+        bool extra = hasExtraAttackPower && (Input.GetButtonDown("Fire2") || Input.GetKeyDown(KeyCode.E));
+        if (extra && cooldownExtra <= 0f && extraBulletPrefab)
         {
-            ShootOnce();
-            cooldown = 1f / Mathf.Max(0.01f, fireRate);
+            ShootOnce(extraBulletPrefab, extraBulletSpeed, "ExtraAttack");
+            cooldownExtra = 1f / Mathf.Max(0.01f, extraFireRate);
         }
     }
 
-    void ShootOnce()
+    void ShootOnce(GameObject prefab, float speed, string animTrigger)
     {
-        if (!bulletPrefab || !shootPoint)
-        {
-            Debug.LogWarning("Faltou bulletPrefab ou shootPoint.");
-            return;
-        }
+        if (!prefab || !shootPoint) return;
 
         int dir = sr && sr.flipX ? -1 : 1;
         Vector2 shotDir = new Vector2(dir, 0f);
 
-        // spawn fora do meu collider
         Vector3 spawnPos = shootPoint.position;
         if (TryGetComponent<Collider2D>(out var myCol))
         {
             float halfX = myCol.bounds.extents.x;
             spawnPos += new Vector3(dir * (halfX + spawnMargin), 0f, 0f);
         }
-        else spawnPos += new Vector3(dir * 0.2f, 0f, 0f);
 
-        // instanciar
-        var go = Instantiate(bulletPrefab, spawnPos, Quaternion.identity);
+        var go = Instantiate(prefab, spawnPos, Quaternion.identity);
 
-        // 1) se tiver Bullet2D, usa Launch
         var bullet = go.GetComponent<Bullet2D>();
-        if (bullet) bullet.Launch(shotDir, bulletSpeed);
+        if (bullet) bullet.Launch(shotDir, speed);
 
-        // 2) além disso, GARANTE velocidade direto no Rigidbody2D
         var brb = go.GetComponent<Rigidbody2D>();
         if (brb)
         {
@@ -75,14 +80,10 @@ public class PlayerShoot2D : MonoBehaviour
             brb.gravityScale = 0f;
             brb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
             brb.constraints = RigidbodyConstraints2D.None;
-            brb.linearVelocity = shotDir.normalized * bulletSpeed;
-        }
-        else
-        {
-            Debug.LogError("Bullet prefab não tem Rigidbody2D.");
+            brb.linearVelocity = shotDir.normalized * speed;
         }
 
-        // ignorar colisão bala x player
+        // ignorar colisão com o player
         var bulletCols = go.GetComponentsInChildren<Collider2D>();
         foreach (var bc in bulletCols)
             foreach (var pc in playerCols)
@@ -91,6 +92,6 @@ public class PlayerShoot2D : MonoBehaviour
         if (rb && recoilKick > 0f)
             rb.AddForce(new Vector2(-dir * recoilKick, 0f), ForceMode2D.Impulse);
 
-        if (animator) animator.SetTrigger("Attack");
+        if (animator && !string.IsNullOrEmpty(animTrigger)) animator.SetTrigger(animTrigger);
     }
 }

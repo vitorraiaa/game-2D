@@ -14,7 +14,7 @@ TagManager:
   - Ground
   - Player
   - Bullet
-  - 
+  - Ladder
   - 
   - 
   - 
@@ -52,6 +52,9 @@ TagManager:
     locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Ladder
+    uniqueID: 1557639059
     locked: 0
   m_RenderingLayers:
   - Default
