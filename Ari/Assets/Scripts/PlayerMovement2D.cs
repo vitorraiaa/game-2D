@@ -7,39 +7,43 @@ using UnityEngine;
 public class PlayerMovement2D : MonoBehaviour
 {
     [Header("Movimento")]
-    public float walkSpeed = 3.5f;          // andar (sem Shift)
-    public float runSpeed  = 8f;            // correr (Shift)
+    public float walkSpeed = 3.5f;
+    public float runSpeed  = 8f;
     public float aceleracaoNoChao = 60f;
     public float aceleracaoNoAr   = 40f;
 
     [Header("Pulo")]
     public float forcaPulo = 14f;
-    public float coyoteTime   = 0.12f;      // tolerância depois de sair do chão
-    public float jumpBuffer   = 0.12f;      // tolerância antes de tocar o chão
-    public float gravidadeDescida = 2.5f;   // mais pesado descendo
-    public float gravidadeSubida  = 2.0f;   // corta subida ao soltar o botão
+    public float coyoteTime   = 0.12f;
+    public float jumpBuffer   = 0.12f;
+    public float gravidadeDescida = 2.5f;  // mais pesado descendo
+    public float gravidadeSubida  = 2.0f;  // corta subida ao SOLTAR o botão
 
     [Header("Limite de Altura do Pulo")]
     public bool  limitarAlturaDoPulo = true;
-    [Tooltip("Tempo máximo (s) que continua SUBINDO após iniciar o pulo.")]
+    [Tooltip("Tempo máx. (s) de SUBIDA do pulo normal.")]
     public float tempoMaxSubida = 0.12f;
 
-    [Header("High Jump (power-up)")]
-    public bool  hasHighJumpPower = false;  // deve ser ligado por power-up
+    [Header("High Jump (via pickup)")]
+    public bool  hasHighJumpPower = false; // setado pelo pickup
     public float highJumpForce    = 18f;
-    [Tooltip("Permite usar o high jump alguns ms após sair do chão.")]
+    [Tooltip("Tolera alguns ms após sair do chão para aceitar o high jump.")]
     public float highJumpCoyote   = 0.10f;
+    [Tooltip("Janela em segundos em que NÃO cortamos a subida do high jump.")]
+    public float highJumpNoCutTime = 0.15f;
+    [Tooltip("Tempo máx. (s) de SUBIDA específico do high jump.")]
+    public float tempoMaxSubidaHigh = 0.20f;
 
     [Header("Chão")]
-    public Transform groundCheck;           // filho “GroundCheck”
+    public Transform groundCheck;
     public float groundCheckRadius = 0.12f;
     public LayerMask groundMask;
 
     [Header("Escada (Climb)")]
     public string ladderLayerName = "Ladder";
-    public float climbSpeed = 3.0f;         // velocidade na escada
-    public float descendExtra = 1.0f;       // multiplicador ao segurar S/↓
-    public float climbExitHorizontalBoost = 0f; // impulso X ao sair (opcional)
+    public float climbSpeed = 3.0f;
+    public float descendExtra = 1.0f;
+    public float climbExitHorizontalBoost = 0f;
 
     [Header("Animator (auto)")]
     public Animator animator;
@@ -49,12 +53,12 @@ public class PlayerMovement2D : MonoBehaviour
     SpriteRenderer sr;
     Collider2D col;
 
-    int ladderLayer;          // índice da layer Ladder
+    int ladderLayer;
     bool emLadderZone = false;
-    bool isClimbing    = false;
+    bool isClimbing   = false;
 
-    float inputX;             // -1, 0, 1
-    float inputY;             // escada
+    float inputX;   // -1,0,1
+    float inputY;   // vertical (escada)
 
     float coyoteTimer;
     float jumpBufferTimer;
@@ -62,15 +66,14 @@ public class PlayerMovement2D : MonoBehaviour
     // controle do limite de subida
     float tempoDesdeInicioDoPulo;
     bool  emSubidaLimitada;
+    bool  emHighJumpSubida;     // estamos na fase de SUBIDA de um high jump?
+    float noCutTimer;           // janela anti-corte de subida (high jump)
 
-    // high jump no ar (um por voo)
-    bool canAirHighJump = false;
-    bool wasGrounded    = false;
+    // fila de high jump (tecla Q)
+    bool queuedHighJump = false;
 
     // Animator hashes
     int hSpeed, hIsGrounded, hYVelocity, hJump, hHighJump, hIsClimbing;
-
-    // ———————————————————————————————————————————————————————————
 
     void Awake()
     {
@@ -79,7 +82,6 @@ public class PlayerMovement2D : MonoBehaviour
         col = GetComponent<Collider2D>();
         if (!animator) animator = GetComponent<Animator>();
 
-        // GroundCheck automático, se faltar
         if (!groundCheck)
         {
             var found = transform.Find("GroundCheck");
@@ -92,18 +94,14 @@ public class PlayerMovement2D : MonoBehaviour
                 groundCheck = go.transform;
             }
         }
-
         if (groundMask == 0) groundMask = LayerMask.GetMask("Ground");
 
-        // Rigidbody2D base
         rb.freezeRotation = true;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
 
-        // Ladder layer
         ladderLayer = LayerMask.NameToLayer(ladderLayerName);
 
-        // Animator hashes
         hSpeed       = Animator.StringToHash("Speed");
         hIsGrounded  = Animator.StringToHash("IsGrounded");
         hYVelocity   = Animator.StringToHash("YVelocity");
@@ -114,19 +112,21 @@ public class PlayerMovement2D : MonoBehaviour
 
     void Update()
     {
-        // leitura de inputs
-        inputX = Input.GetAxisRaw("Horizontal");    // -1,0,1
-        inputY = Input.GetAxisRaw("Vertical");      // usado na escada
+        inputX = Input.GetAxisRaw("Horizontal");
+        inputY = Input.GetAxisRaw("Vertical");
 
-        // vira sprite
         if (inputX != 0) sr.flipX = inputX < 0;
 
-        // buffer de pulo (Jump/Space)
+        // Jump buffer
         if (Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.Space))
             jumpBufferTimer = jumpBuffer;
         jumpBufferTimer -= Time.deltaTime;
 
-        // Animator (sempre alimenta)
+        // Enfileira High Jump ao apertar Q
+        if (hasHighJumpPower && Input.GetKeyDown(KeyCode.Q))
+            queuedHighJump = true;
+
+        // Animator
         if (animator)
         {
             animator.SetFloat(hSpeed, Mathf.Abs(rb.linearVelocity.x));
@@ -140,45 +140,50 @@ public class PlayerMovement2D : MonoBehaviour
     void FixedUpdate()
     {
         bool noChao = EstaNoChao();
-
-        // reset por toque no chão (libera 1 high jump aéreo por voo)
-        if (noChao && !wasGrounded)
-            canAirHighJump = hasHighJumpPower;
-        wasGrounded = noChao;
-
         if (noChao) coyoteTimer = coyoteTime;
         else        coyoteTimer -= Time.fixedDeltaTime;
 
-        // — CLIMB (escada) tem prioridade quando ativo —
+        // — CLIMB —
         if (isClimbing)
         {
             rb.gravityScale = 0f;
-
             float y = inputY * climbSpeed;
             if (y < 0f) y *= (1f + descendExtra);
-
-            // controle horizontal leve (opcional: zere se quiser)
             float x = inputX * walkSpeed * 0.2f;
-
             rb.linearVelocity = new Vector2(x, y);
-            return; // não processa físico “terrestre”
+            return;
         }
-        else
-        {
-            // fora da escada → gravidade normal
-            rb.gravityScale = 1f;
-        }
+        else rb.gravityScale = 1f;
 
-        // Walk por padrão; Run com Shift
+        // Walk / Run
         bool runHeld = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
         float targetSpeed = runHeld ? runSpeed : walkSpeed;
 
-        // aceleração suave no X
+        // aceleração X
         float alvoX = inputX * targetSpeed;
         float acel  = noChao ? aceleracaoNoChao : aceleracaoNoAr;
         float novoX = Mathf.MoveTowards(rb.linearVelocity.x, alvoX, acel * Time.fixedDeltaTime);
 
-        // pulo (coyote + buffer)
+        // — HIGH JUMP (prioridade) —
+        if (queuedHighJump)
+        {
+            if (noChao || coyoteTimer > -highJumpCoyote)
+            {
+                queuedHighJump    = false;
+                emHighJumpSubida  = true;
+                noCutTimer        = highJumpNoCutTime;   // janela anti-corte
+                tempoDesdeInicioDoPulo = 0f;             // reinicia janela de subida
+
+                rb.linearVelocity = new Vector2(novoX, highJumpForce);
+                if (animator) animator.SetTrigger(hHighJump);
+
+                emSubidaLimitada = limitarAlturaDoPulo; // usamos limite, mas com tempo maior (abaixo)
+                return;
+            }
+            // (Se quiser permitir high jump no ar, adicione aqui a variante aérea)
+        }
+
+        // — PULO NORMAL (space) —
         bool querPular = (jumpBufferTimer > 0f);
         bool podePularAgora = (coyoteTimer > 0f) && querPular;
 
@@ -187,49 +192,70 @@ public class PlayerMovement2D : MonoBehaviour
             jumpBufferTimer = 0f;
             coyoteTimer     = 0f;
 
+            emHighJumpSubida = false;      // é pulo normal
+            noCutTimer       = 0f;         // sem janela anti-corte no pulo normal
+            tempoDesdeInicioDoPulo = 0f;
+
             rb.linearVelocity = new Vector2(novoX, forcaPulo);
             if (animator) animator.SetTrigger(hJump);
 
-            // inicia janela de subida limitada
-            if (limitarAlturaDoPulo)
-            {
-                emSubidaLimitada = true;
-                tempoDesdeInicioDoPulo = 0f;
-            }
-            return; // já aplicamos pulo neste frame
+            emSubidaLimitada = limitarAlturaDoPulo;
+            return;
         }
 
-        // Gravidade variável para sensação melhor de pulo
+        // — GRAVIDADE VARIÁVEL —
         if (rb.linearVelocity.y < 0f)
         {
             // caindo → mais pesado
             rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (gravidadeDescida - 1f) * Time.fixedDeltaTime;
         }
-        else if (rb.linearVelocity.y > 0f && !Input.GetButton("Jump") && !Input.GetKey(KeyCode.Space))
+        else if (rb.linearVelocity.y > 0f)
         {
-            // subindo mas soltou o botão → corta ascensão
-            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (gravidadeSubida - 1f) * Time.fixedDeltaTime;
+            // Durante a janela anti-corte do HIGH JUMP, não aplicamos o short-hop cut
+            bool podeCortarSubida = (noCutTimer <= 0f);
+            if (podeCortarSubida && !Input.GetButton("Jump") && !Input.GetKey(KeyCode.Space))
+            {
+                rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (gravidadeSubida - 1f) * Time.fixedDeltaTime;
+            }
         }
 
-        // Limita a duração da SUBIDA (altura efetiva do pulo)
-        if (limitarAlturaDoPulo && emSubidaLimitada)
+        // — LIMITE DE SUBIDA —
+        if (limitarAlturaDoPulo && emSubidaLimitada && rb.linearVelocity.y > 0f)
         {
             tempoDesdeInicioDoPulo += Time.fixedDeltaTime;
 
-            bool soltouBotao   = !Input.GetButton("Jump") && !Input.GetKey(KeyCode.Space);
-            bool estourouJanela = tempoDesdeInicioDoPulo >= tempoMaxSubida;
+            // tempo de subida alvo depende se é high jump ou não
+            float limite = emHighJumpSubida ? tempoMaxSubidaHigh : tempoMaxSubida;
 
-            if (soltouBotao || estourouJanela)
+            bool soltouBotao    = !Input.GetButton("Jump") && !Input.GetKey(KeyCode.Space);
+            bool estourouJanela = tempoDesdeInicioDoPulo >= limite;
+
+            // Enquanto houver noCutTimer (high jump), ignoramos o "soltouBotao"
+            bool deveCortar = estourouJanela || (soltouBotao && noCutTimer <= 0f);
+
+            if (deveCortar)
             {
-                if (rb.linearVelocity.y > 0f)
-                    rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
                 emSubidaLimitada = false;
+                emHighJumpSubida = false;
             }
         }
-        if (rb.linearVelocity.y <= 0f) emSubidaLimitada = false;
+
+        if (rb.linearVelocity.y <= 0f)
+        {
+            emSubidaLimitada = false;
+            emHighJumpSubida = false;
+        }
 
         // aplica X mantendo Y
         rb.linearVelocity = new Vector2(novoX, rb.linearVelocity.y);
+
+        // atualiza janela anti-corte (se ativa)
+        if (noCutTimer > 0f)
+        {
+            noCutTimer -= Time.fixedDeltaTime;
+            if (noCutTimer < 0f) noCutTimer = 0f;
+        }
     }
 
     void LateUpdate()
@@ -237,19 +263,15 @@ public class PlayerMovement2D : MonoBehaviour
         // Liga/desliga climb conforme input vertical dentro da Ladder
         if (emLadderZone)
         {
-            // se pressionar ↑/↓, entra; se soltar totalmente, sai
             if (!isClimbing && Mathf.Abs(inputY) > 0.05f)
                 isClimbing = true;
             else if (isClimbing && Mathf.Abs(inputY) <= 0.05f)
                 isClimbing = false;
         }
-        else
-        {
-            isClimbing = false;
-        }
+        else isClimbing = false;
     }
 
-    // ————— Escada (Trigger) —————
+    // — Escada (Trigger) —
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.layer == ladderLayer)
@@ -271,72 +293,14 @@ public class PlayerMovement2D : MonoBehaviour
         }
     }
 
-    // ————— API pública para power-ups / entradas de jogo —————
-
-    /// <summary>Concede o power-up de High Jump (permite pulo alto do chão e um no ar por voo).</summary>
-    public void GrantHighJump()
-    {
-        hasHighJumpPower = true;
-        // libera o uso aéreo assim que tocar no chão (feito em FixedUpdate)
-    }
-
-    /// <summary>
-    /// Tenta executar um High Jump:
-    /// - Do chão (ou micro-coyote), sempre que o power-up estiver ativo.
-    /// - No ar, apenas uma vez por voo (canAirHighJump).
-    /// Chame isto a partir do seu sistema de input/ação (ex.: ao pressionar Q ou botão dedicado).
-    /// </summary>
-    public void TryHighJump()
-    {
-        if (!hasHighJumpPower) return;
-
-        bool noChao = EstaNoChao();
-
-        // High jump do chão (ou micro-coyote)
-        if (noChao || coyoteTimer > -highJumpCoyote)
-        {
-            float novoX = rb.linearVelocity.x; // mantém inércia atual
-            rb.linearVelocity = new Vector2(novoX, highJumpForce);
-            if (animator) animator.SetTrigger(hHighJump);
-
-            if (limitarAlturaDoPulo)
-            {
-                emSubidaLimitada = true;
-                tempoDesdeInicioDoPulo = 0f;
-            }
-            // se quiser permitir também o do ar depois deste, deixe canAirHighJump como está
-            return;
-        }
-
-        // High jump no ar (duplo pulo) — apenas uma vez até tocar o chão
-        if (!noChao && canAirHighJump)
-        {
-            float vx = rb.linearVelocity.x;
-            // zera Y pra dar "novo impulso" limpo
-            rb.linearVelocity = new Vector2(vx, 0f);
-            rb.linearVelocity = new Vector2(vx, highJumpForce);
-
-            if (animator) animator.SetTrigger(hHighJump);
-
-            if (limitarAlturaDoPulo)
-            {
-                emSubidaLimitada = true;
-                tempoDesdeInicioDoPulo = 0f;
-            }
-            canAirHighJump = false;
-        }
-    }
-
-    // ————— Utilitários —————
+    // — Utilitários —
     bool EstaNoChao()
     {
-        // 1) OverlapCircle no GroundCheck
         if (groundCheck)
         {
             if (Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundMask))
                 return true;
         }
-        // 2) Fallback: BoxCast sob o colisor
         if (col)
         {
             Bounds b = col.bounds;

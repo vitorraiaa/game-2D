@@ -195,10 +195,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 26892006197619871}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d930381e08a04e91a097be1fc917a43, type: 3}
+  m_Script: {fileID: 11500000, guid: a3892b2b6e88c47a0b810182725c541d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 4
   maxDistance: 20
-  animateByDistance: 0
+  animateByDistance: 1
   animStateName: Bullet_Fly
