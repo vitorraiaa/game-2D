@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 7997129853542880816}
   - component: {fileID: 7173775273957859457}
   m_Layer: 8
-  m_Name: Bullet
+  m_Name: Bullet_Extra
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -80,7 +80,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -3966301110949134133, guid: 75b979fc4981e49a1b54414bbc41a98c, type: 3}
+  m_Sprite: {fileID: 2152949022031926857, guid: 4b54d2c12f28944398fb1c0224231917, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -152,17 +152,17 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.007490836, y: -0.0017481586}
+  m_Offset: {x: 0.00009340048, y: -0.0011317059}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.13, y: 0.06}
+    oldSize: {x: 0.27, y: 0.41}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.109643266, y: 0.040565945}
+  m_Size: {x: 0.2699206, y: 0.41413534}
   m_EdgeRadius: 0
 --- !u!95 &7997129853542880816
 Animator:
@@ -174,7 +174,7 @@ Animator:
   m_GameObject: {fileID: 26892006197619871}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: fdd6ee625cb234e11bfea7b569b35f6f, type: 2}
+  m_Controller: {fileID: 9100000, guid: 786b9150b395f488eb6055a089ea005a, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -200,4 +200,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 4
   maxDistance: 20
+  animateByDistance: 0
   animStateName: Bullet_Fly

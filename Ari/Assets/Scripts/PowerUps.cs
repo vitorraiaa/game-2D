@@ -1,36 +1,67 @@
 using UnityEngine;
 
-public enum PowerType { HighJump, ExtraAttack }
+public enum PowerUpType { HighJump, ExtraAttack }
 
 [RequireComponent(typeof(Collider2D))]
-public class PowerupPickup : MonoBehaviour
+[RequireComponent(typeof(SpriteRenderer))]
+public class PowerUpPickup : MonoBehaviour
 {
-    public PowerType powerType;
+    public PowerUpType type = PowerUpType.HighJump;
+    public bool bobbing = true;
+    public float bobbingAmplitude = 0.05f;
+    public float bobbingSpeed = 2f;
 
-    void Reset()
+    Vector3 basePos;
+
+    void Awake()
     {
-        var c = GetComponent<Collider2D>();
-        c.isTrigger = true;
+        basePos = transform.position;
+        var col = GetComponent<Collider2D>();
+        col.isTrigger = true;
+
+        Debug.Log($"[PowerUpPickup] Ativo '{name}' ({type}). Layer={LayerMask.LayerToName(gameObject.layer)} IsTrigger={col.isTrigger}");
+    }
+
+    void Update()
+    {
+        if (bobbing)
+        {
+            float y = Mathf.Sin(Time.time * bobbingSpeed) * bobbingAmplitude;
+            transform.position = basePos + new Vector3(0f, y, 0f);
+        }
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (!other.CompareTag("Player")) return;
+        Debug.Log($"[PowerUpPickup] Trigger com '{other.name}' (layer={LayerMask.LayerToName(other.gameObject.layer)})");
 
-        var move = other.GetComponent<PlayerMovement2D>();
-        var shoot = other.GetComponent<PlayerShoot2D>();
+        var movement = other.GetComponentInParent<PlayerMovement2D>();
+        var shoot    = other.GetComponentInParent<PlayerShoot2D>();
 
-        switch (powerType)
+        if (!movement && !shoot)
         {
-            case PowerType.HighJump:
-                if (move) { move.hasHighJumpPower = true; }
-                break;
-            case PowerType.ExtraAttack:
-                if (shoot) { shoot.hasExtraAttackPower = true; }
-                break;
+            Debug.Log("[PowerUpPickup] Não é player, ignorando.");
+            return;
         }
 
-        // feedback: poderia tocar sfx, spawnar partículas
+        switch (type)
+        {
+            case PowerUpType.HighJump:
+                if (movement)
+                {
+                    movement.hasHighJumpPower = true;
+                    Debug.Log("[PowerUpPickup] High Jump habilitado no Player!");
+                }
+                break;
+
+            case PowerUpType.ExtraAttack:
+                if (shoot)
+                {
+                    shoot.hasExtraAttackPower = true;
+                    Debug.Log("[PowerUpPickup] Extra Attack habilitado no Player!");
+                }
+                break;
+        }
         Destroy(gameObject);
     }
 }

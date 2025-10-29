@@ -8,21 +8,19 @@ public class PlayerShoot2D : MonoBehaviour
     public Transform shootPoint;
     public GameObject bulletPrefab;
     public float bulletSpeed = 18f;
-    public float fireRate = 6f;
-    public float spawnMargin = 0.08f;
+    public float fireRate = 6f;        // tiros por segundo
+    public float spawnMargin = 0.08f;  // distância extra além do collider do player
     public float recoilKick = 0f;
 
-    [Header("Extra Attack (power-up)")]
-    public bool hasExtraAttackPower = false;
-    public GameObject extraBulletPrefab;
-    public float extraBulletSpeed = 20f;
-    public float extraFireRate = 2.5f;
+    [Header("Extra Attack")]
+    public bool hasExtraAttackPower = false;   // ligado pelo pickup
+    public GameObject extraBulletPrefab;       // arraste aqui o prefab especial
+    public float extraBulletSpeed = 14f;
 
-    [Header("Animator")]
+    [Header("Animator (opcional)")]
     public Animator animator;
 
     float cooldown;
-    float cooldownExtra;
     SpriteRenderer sr;
     Rigidbody2D rb;
     Collider2D[] playerCols;
@@ -38,25 +36,46 @@ public class PlayerShoot2D : MonoBehaviour
     void Update()
     {
         cooldown -= Time.deltaTime;
-        cooldownExtra -= Time.deltaTime;
 
-        // tiro normal
-        bool fire = Input.GetButton("Fire1") || Input.GetMouseButton(0);
-        if (fire && cooldown <= 0f) { ShootOnce(bulletPrefab, bulletSpeed, "Attack"); cooldown = 1f / Mathf.Max(0.01f, fireRate); }
-
-        // extra attack (botão direito / E)
-        bool extra = hasExtraAttackPower && (Input.GetButtonDown("Fire2") || Input.GetKeyDown(KeyCode.E));
-        if (extra && cooldownExtra <= 0f && extraBulletPrefab)
+        bool fireMain = Input.GetButton("Fire1") || Input.GetMouseButton(0);
+        if (fireMain && cooldown <= 0f)
         {
-            ShootOnce(extraBulletPrefab, extraBulletSpeed, "ExtraAttack");
-            cooldownExtra = 1f / Mathf.Max(0.01f, extraFireRate);
+            ShootOnce();
+            cooldown = 1f / Mathf.Max(0.01f, fireRate);
+        }
+
+        // Extra Attack no 'E'
+        if (hasExtraAttackPower && Input.GetKeyDown(KeyCode.E))
+        {
+            ShootExtra();
         }
     }
 
-    void ShootOnce(GameObject prefab, float speed, string animTrigger)
+    void ShootOnce()
     {
-        if (!prefab || !shootPoint) return;
+        if (!bulletPrefab || !shootPoint)
+        {
+            Debug.LogWarning("[Shoot] Faltou bulletPrefab ou shootPoint.");
+            return;
+        }
+        SpawnBullet(bulletPrefab, bulletSpeed);
+        if (animator) animator.SetTrigger("Attack");
+    }
 
+    void ShootExtra()
+    {
+        if (!extraBulletPrefab || !shootPoint)
+        {
+            Debug.LogWarning("[Shoot] Faltou extraBulletPrefab ou shootPoint.");
+            return;
+        }
+        Debug.Log("[Shoot] EXTRA ATTACK!");
+        SpawnBullet(extraBulletPrefab, extraBulletSpeed);
+        if (animator) animator.SetTrigger("ExtraAttack");
+    }
+
+    void SpawnBullet(GameObject prefab, float speed)
+    {
         int dir = sr && sr.flipX ? -1 : 1;
         Vector2 shotDir = new Vector2(dir, 0f);
 
@@ -66,6 +85,7 @@ public class PlayerShoot2D : MonoBehaviour
             float halfX = myCol.bounds.extents.x;
             spawnPos += new Vector3(dir * (halfX + spawnMargin), 0f, 0f);
         }
+        else spawnPos += new Vector3(dir * 0.2f, 0f, 0f);
 
         var go = Instantiate(prefab, spawnPos, Quaternion.identity);
 
@@ -82,8 +102,11 @@ public class PlayerShoot2D : MonoBehaviour
             brb.constraints = RigidbodyConstraints2D.None;
             brb.linearVelocity = shotDir.normalized * speed;
         }
+        else
+        {
+            Debug.LogError("[Shoot] Bullet prefab não tem Rigidbody2D.");
+        }
 
-        // ignorar colisão com o player
         var bulletCols = go.GetComponentsInChildren<Collider2D>();
         foreach (var bc in bulletCols)
             foreach (var pc in playerCols)
@@ -91,7 +114,5 @@ public class PlayerShoot2D : MonoBehaviour
 
         if (rb && recoilKick > 0f)
             rb.AddForce(new Vector2(-dir * recoilKick, 0f), ForceMode2D.Impulse);
-
-        if (animator && !string.IsNullOrEmpty(animTrigger)) animator.SetTrigger(animTrigger);
     }
 }
