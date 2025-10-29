@@ -16,8 +16,8 @@ TagManager:
   - Player
   - Bullet
   - Ladder
-  - 
-  - 
+  - Bullet_Enemy
+  - Enemy
   - 
   - 
   - 

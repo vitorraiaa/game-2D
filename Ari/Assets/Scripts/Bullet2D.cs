@@ -10,12 +10,17 @@ public class Bullet2D : MonoBehaviour
     public float speed = 18f;
 
     [Header("Vida por distância")]
-    public float maxDistance = 8f;            // a bullet "morre" após percorrer isso
+    public float maxDistance = 8f; // a bullet "morre" após percorrer isso
+
+    [Header("Alvo")]
+    [Tooltip("Layer que a bala acerta (ex.: Enemy para bala do player, Player para bala do inimigo).")]
+    public string hitLayer = "Enemy";
+    public int damage = 1;
 
     [Header("Animação")]
-    [Tooltip("Se ativo, o frame do Animator é dirigido pela distância percorrida (0..1). Se desativo, o Animator toca normalmente no tempo.")]
+    [Tooltip("Se ativo, o frame do Animator é dirigido pela distância percorrida (0..1).")]
     public bool animateByDistance = true;
-    [Tooltip("Nome do state padrão no Animator com o clip da bala (use exatamente o nome do state).")]
+    [Tooltip("Nome do state padrão no Animator com o clip da bala.")]
     public string animStateName = "Bullet_Fly";
 
     Rigidbody2D rb;
@@ -32,7 +37,7 @@ public class Bullet2D : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
 
-        // Setup seguro do corpo
+        // Setup do corpo
         rb.bodyType = RigidbodyType2D.Dynamic;
         rb.simulated = true;
         rb.gravityScale = 0f;
@@ -48,15 +53,10 @@ public class Bullet2D : MonoBehaviour
         launched = false;
         startPos = rb.position;
 
-        // Se vamos dirigir pela distância, congelamos o Animator
-        if (animateByDistance) anim.speed = 0f;
-        else                   anim.speed = 1f;
+        anim.speed = animateByDistance ? 0f : 1f;
 
-        // Checagem de segurança: state existe?
         if (animateByDistance && anim && !anim.HasState(LAYER_BASE, animStateHash))
-        {
-            Debug.LogWarning($"[Bullet] Animator não tem state '{animStateName}'. Verifique o nome no prefab.", this);
-        }
+            Debug.LogWarning($"[Bullet] Animator não tem state '{animStateName}'.", this);
     }
 
     /// Lança a bala numa direção (normalmente (±1,0)).
@@ -84,7 +84,6 @@ public class Bullet2D : MonoBehaviour
         if (animateByDistance && anim)
         {
             float t = Mathf.Clamp01(dist / maxDistance);  // 0..1
-            // Posiciona o clip no ponto proporcional à distância
             anim.Play(animStateHash, LAYER_BASE, t);
         }
 
@@ -95,8 +94,23 @@ public class Bullet2D : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        // Evite destruir quando tocar no próprio player (se layers colidirem)
-        if (LayerMask.NameToLayer("Player") == other.gameObject.layer) return;
+        // Ignora se a layer não é o alvo
+        if (other.gameObject.layer != LayerMask.NameToLayer(hitLayer))
+        {
+            return;
+        }
+
+        // Procura alguém que implementa IDamageable no alvo
+        var damageable = other.GetComponentInParent<IDamageable>();
+        if (damageable != null)
+        {
+            // Ponto de impacto aproximado e "normal" na direção do voo
+            Vector2 hitPoint = Physics2D.ClosestPoint(transform.position, other);
+            Vector2 hitNormal = moveDir; // empurra na direção do voo
+
+            damageable.ApplyDamage(damage, hitPoint, hitNormal);
+        }
+
         Destroy(gameObject);
     }
 }

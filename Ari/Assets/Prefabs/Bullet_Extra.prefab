@@ -202,3 +202,5 @@ MonoBehaviour:
   maxDistance: 20
   animateByDistance: 0
   animStateName: Bullet_Extra
+  damage: 1
+  hitLayer: Enemy
