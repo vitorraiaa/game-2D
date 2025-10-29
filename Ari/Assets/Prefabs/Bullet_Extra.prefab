@@ -200,5 +200,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 4
   maxDistance: 20
-  animateByDistance: 1
-  animStateName: Bullet_Fly
+  animateByDistance: 0
+  animStateName: Bullet_Extra
