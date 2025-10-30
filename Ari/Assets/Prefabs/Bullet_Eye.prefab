@@ -203,7 +203,7 @@ MonoBehaviour:
     m_Bits: 0
   damage: 1
   destroyOnHit: 1
-  speed: 3
+  speed: 0.22
   maxDistance: 10
   animateByDistance: 0
   animStateName: Bullet_Extra
