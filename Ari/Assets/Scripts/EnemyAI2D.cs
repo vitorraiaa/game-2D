@@ -1,88 +1,121 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(SpriteRenderer))]
 public class EnemyAI2D : MonoBehaviour
 {
-    [Header("Target")]
-    public Transform target;                 // se vazio, procura por tag "Player"
-    public string playerTag = "Player";
+    [Header("Refs")]
+    public Transform target;
+    public Transform spriteRoot;
+    public EnemyShoot2D shooter;
+    public Animator animator;
 
-    [Header("Movimento")]
-    public float walkSpeed = 2.0f;           // velocidade quando avança
-    public float advanceRange = 4.0f;        // começa a AVANÇAR quando dist <= isso (curto)
-    public float stopDistance = 1.5f;        // para de avançar quando chega nisso
+    [Header("Ranges")]
+    public float sightRange = 10f;
+    public float attackRange = 6f; // ataca quando dist <= attackRange
+    public float chaseRange  = 4f; // avança quando dist <= chaseRange
+
+    [Header("Move")]
+    public bool canWalk = true;
+    public float walkSpeed = 1.8f;
+    public float accel = 12f;
+
+    [Header("Orientação")]
     public bool faceTarget = true;
 
-    [Header("Tiro (coordenado com EnemyShoot2D)")]
-    public EnemyShoot2D shooter;             // arraste o componente do mesmo GO
-    public float shootRange = 10.0f;         // atira se dist <= isso (longo)
-
-    [Header("Animator (opcional)")]
-    public Animator animator;
-    public string speedParam = "Speed";      // float
-    public string hurtParam  = "Hurt";       // trigger (se usar)
-    public string deathParam = "Death";      // trigger (se usar)
+    [Header("Debug")]
+    public bool debugLogs = false;
 
     Rigidbody2D rb;
     SpriteRenderer sr;
+    float desiredXVel;
+    bool allowMove = true; // para “stun” do hurt
 
     void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
-        sr = GetComponent<SpriteRenderer>();
-        if (!animator) animator = GetComponent<Animator>();
-        if (!shooter) shooter = GetComponent<EnemyShoot2D>();
-    }
+    rb = GetComponent<Rigidbody2D>();
 
-    void Start()
+    if (!target)
     {
-        if (!target)
-        {
-            var p = GameObject.FindGameObjectWithTag(playerTag);
-            if (p) target = p.transform;
-        }
-
-        // passa o shootRange para o shooter (se quiser centralizar aqui)
-        if (shooter) shooter.attackRange = shootRange;
+        var p = GameObject.FindGameObjectWithTag("Player");
+        if (p) target = p.transform;
     }
+
+    if (!spriteRoot) spriteRoot = transform;
+    if (!animator)   animator   = spriteRoot.GetComponent<Animator>();
+
+    // 👉 auto-descobrir o Shooter
+    if (!shooter) shooter = GetComponentInChildren<EnemyShoot2D>(includeInactive: true);
+
+    sr = spriteRoot.GetComponentInChildren<SpriteRenderer>();
+    rb.freezeRotation = true;
+    }
+
+
+    public void EnableMovement(bool enable) => allowMove = enable;
 
     void FixedUpdate()
     {
         if (!target)
         {
-            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
-            if (animator) animator.SetFloat(speedParam, 0f);
+            desiredXVel = 0f;
+            ApplyMoveAndAnim();
             return;
         }
 
-        Vector2 toPlayer = target.position - transform.position;
-        float dist = toPlayer.magnitude;
+        float dx = target.position.x - rb.position.x;
+        float dist = Mathf.Abs(dx);
 
-        // 1) Olhar para o player (opcional)
+        bool inSight   = dist <= sightRange;
+        bool inAttack  = dist <= attackRange;
+        bool inChase   = dist <= chaseRange;
+
+        // Atirar (não depende de andar)
+        if (inSight && inAttack && shooter)
+        {
+            if (debugLogs) Debug.Log($"[EnemyAI] Attack: dist={dist:0.00} <= {attackRange}");
+            shooter.TryAttack();
+        }
+
+        // Caminhar só se permitido e bem perto
+        if (allowMove && canWalk && inSight && inChase)
+        {
+            float dir = Mathf.Sign(dx);
+            desiredXVel = dir * walkSpeed;
+        }
+        else
+        {
+            desiredXVel = 0f;
+        }
+
         if (faceTarget && sr)
-        {
-            if (toPlayer.x != 0) sr.flipX = toPlayer.x < 0f;
-        }
+            sr.flipX = (dx < 0f);
 
-        // 2) Movimento: só avança se o player estiver perto (<= advanceRange)
-        float vx = 0f;
-        if (dist <= advanceRange && dist > stopDistance)
-        {
-            float dir = Mathf.Sign(toPlayer.x);      // 1 ou -1
-            vx = dir * walkSpeed;
-        }
-
-        rb.linearVelocity = new Vector2(vx, rb.linearVelocity.y);
-        if (animator) animator.SetFloat(speedParam, Mathf.Abs(vx));
-
-        // 3) Tiro: o EnemyShoot2D já cuida do cooldown;
-        //    aqui só garantimos que o "attackRange" dele está correto.
-        //    (se você preferir, pode ligar/desligar o shooter por distância)
-        if (shooter) shooter.attackRange = shootRange;
+        ApplyMoveAndAnim();
     }
 
-    // Exemplo de hooks para Hurt/Death (se quiser acionar por outro script)
-    public void OnHurt()  { if (animator) animator.SetTrigger(hurtParam); }
-    public void OnDeath() { if (animator) animator.SetTrigger(deathParam); }
+    void ApplyMoveAndAnim()
+    {
+        float targetX = allowMove ? desiredXVel : 0f;
+        float newX = Mathf.MoveTowards(rb.linearVelocity.x, targetX, accel * Time.fixedDeltaTime);
+        rb.linearVelocity = new Vector2(newX, rb.linearVelocity.y);
+
+        if (animator) animator.SetFloat("Speed", Mathf.Abs(newX));
+    }
+
+    public void OnHurt()
+    {
+        if (animator) animator.SetTrigger("Hurt");
+    }
+
+    public void OnDeath()
+    {
+        if (animator) animator.SetBool("dead", true);
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow; Gizmos.DrawWireSphere(transform.position, sightRange);
+        Gizmos.color = Color.cyan;   Gizmos.DrawWireSphere(transform.position, attackRange);
+        Gizmos.color = Color.magenta;Gizmos.DrawWireSphere(transform.position, chaseRange);
+    }
 }

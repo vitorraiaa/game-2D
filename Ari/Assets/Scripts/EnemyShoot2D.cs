@@ -1,68 +1,98 @@
 using UnityEngine;
 
-[RequireComponent(typeof(SpriteRenderer))]
 public class EnemyShoot2D : MonoBehaviour
 {
-    [Header("Tiro")]
+    [Header("Refs")]
     public Transform shootPoint;
-    public GameObject bulletPrefab;     // use seu Bullet2D
-    public float bulletSpeed = 10f;
-    public float fireCooldown = 1.2f;   // intervalo entre tiros
-    public int bulletDamage = 1;
+    public GameObject bulletPrefab;
+    public Animator animator; // do sprite
 
-    [Header("Alvo")]
-    public Transform target;            // arraste o Player; ou buscaremos
-    public float attackRange = 8f;
-    public float fireLead = 0f;         // 0 = mira direta
+    [Header("Config")]
+    public float bulletSpeed   = 12f;
+    public float fireCooldown  = 0.8f;
+    public float fireFailSafeDelay = 0.18f; // dispara se o evento não vier
+    public bool  useAnimEvent  = true;      // deixe ON (usa OnAnimFire do clip)
 
-    [Header("Animator (opcional)")]
-    public Animator animator;
-
-    float cd;
-    SpriteRenderer sr;
-
-    int hAttack;
+    float nextFireTime;
+    bool waitingFailSafe;
 
     void Awake()
     {
-        sr = GetComponent<SpriteRenderer>();
-        if (!animator) animator = GetComponent<Animator>();
-        hAttack = Animator.StringToHash("Attack");
-        if (!target) { var p = GameObject.FindGameObjectWithTag("Player"); if (p) target = p.transform; }
+        if (!animator) animator = GetComponentInChildren<Animator>();
     }
 
-    void Update()
+    public void TryAttack()
     {
-        cd -= Time.deltaTime;
-        if (!target || !bulletPrefab || !shootPoint) return;
-
-        float dist = Vector2.Distance(transform.position, target.position);
-        if (dist <= attackRange && cd <= 0f)
+        if (Time.time < nextFireTime) return;
+        if (!bulletPrefab || !shootPoint)
         {
-            // vira para o alvo
-            if (sr) sr.flipX = (target.position.x < transform.position.x);
-            if (animator) animator.SetTrigger(hAttack);
+            Debug.LogWarning("[EnemyShoot] bulletPrefab/shootPoint faltando", this);
+            return;
+        }
 
-            // Disparo real (direto; se preferir, chame via Animation Event)
-            Fire();
-            cd = fireCooldown;
+        nextFireTime = Time.time + fireCooldown;
+
+        if (useAnimEvent && animator)
+        {
+            if (!HasParam(animator, "Attack"))
+                Debug.LogWarning("[EnemyShoot] Animator sem Trigger 'Attack'", animator);
+
+            animator.SetTrigger("Attack");
+
+            // se o evento não vier, dispare no delay de segurança
+            if (!waitingFailSafe)
+                Invoke(nameof(FailSafeFire), fireFailSafeDelay);
+            waitingFailSafe = true;
+        }
+        else
+        {
+            // sem animação/evento → dispara direto
+            OnAnimFire();
         }
     }
 
-    public void Fire()
+    // Chamado pelo Animation Event no clipe Attack
+    public void OnAnimFire()
+    {
+        waitingFailSafe = false; // evento chegou → cancela failsafe
+        CancelInvoke(nameof(FailSafeFire));
+        DoFire();
+    }
+
+    void FailSafeFire()
+    {
+        if (!waitingFailSafe) return; // evento já chegou
+        waitingFailSafe = false;
+        DoFire();
+    }
+
+    void DoFire()
     {
         if (!bulletPrefab || !shootPoint) return;
 
-        Vector2 dir = (target ? (Vector2)(target.position - shootPoint.position) : Vector2.left);
-        dir.Normalize();
-
         var go = Instantiate(bulletPrefab, shootPoint.position, Quaternion.identity);
-        // se seu Bullet2D tem dano, exponha um campo; aqui ilustramos simples:
-        var b = go.GetComponent<Bullet2D>();
-        if (b) b.Launch(dir, bulletSpeed);
-        var rb = go.GetComponent<Rigidbody2D>();
-        if (rb) { rb.gravityScale = 0f; rb.linearVelocity = dir * bulletSpeed; }
-        // layer da bala inimiga
+
         go.layer = LayerMask.NameToLayer("BulletEnemy");
+
+        var b = go.GetComponent<Bullet2D>();
+        if (b)
+        {
+            b.hitMask = LayerMask.GetMask("Player");
+
+            var sr = GetComponentInChildren<SpriteRenderer>();
+            int dir = (sr && sr.flipX) ? -1 : 1;
+
+            b.Launch(new Vector2(dir, 0f), bulletSpeed);
+        }
+        else
+        {
+            Debug.LogWarning("[EnemyShoot] Bullet2D ausente no prefab", bulletPrefab);
+        }
+    }
+
+    static bool HasParam(Animator a, string p)
+    {
+        foreach (var x in a.parameters) if (x.name == p) return true;
+        return false;
     }
 }

@@ -1,100 +1,41 @@
-// EnemyHealth.cs
 using UnityEngine;
 
-[RequireComponent(typeof(Collider2D))]
-public class EnemyHealth : MonoBehaviour, IDamageable
+public class EnemyHealth : MonoBehaviour
 {
-    [Header("HP")]
     public int maxHP = 3;
-    public bool invincibleOnHurt = true;
-    public float invincibleTime = 0.2f;
-
-    [Header("Knockback (opcional)")]
-    public float knockbackForce = 0f;
-
-    [Header("Animator (opcional)")]
-    public Animator animator;
-    public string hurtParam  = "Hurt";   // Trigger
-    public string deathParam = "Death";  // Trigger
+    public float deathCleanupDelay = 0.8f;
 
     int hp;
     bool dead;
-    bool invincible;
-    Rigidbody2D rb;
-    Collider2D[] cols;
-    MonoBehaviour[] enemyBehaviours; // coloque aqui EnemyAI2D, EnemyShoot2D, etc.
+    Animator anim;
 
     void Awake()
     {
         hp = maxHP;
-        if (!animator) animator = GetComponent<Animator>();
-        rb   = GetComponent<Rigidbody2D>();
-        cols = GetComponentsInChildren<Collider2D>();
-
-        // Desligaremos isso no death:
-        enemyBehaviours = new MonoBehaviour[] {
-            GetComponent<EnemyAI2D>(),
-            GetComponent<EnemyShoot2D>()
-        };
+        anim = GetComponentInChildren<Animator>(); // no spriteRoot
     }
 
-    public void ApplyDamage(int amount, Vector2 hitPoint, Vector2 hitNormal)
+    public void TakeDamage(int amount)
     {
-        if (dead || invincible) return;
+        if (dead) return;
 
         hp -= Mathf.Max(1, amount);
+        if (anim) anim.SetTrigger("Hurt");
 
         if (hp <= 0)
         {
-            Die();
-            return;
+            dead = true;
+            if (anim) anim.SetBool("Dead", true);   // <<< bool, D maiúsculo
+
+            // Desliga AI e tiro
+            var ai = GetComponent<EnemyAI2D>();      if (ai) ai.enabled = false;
+            var sh = GetComponentInChildren<EnemyShoot2D>(); if (sh) sh.enabled = false;
+
+            // Desativa colisão/movimento
+            foreach (var c in GetComponentsInChildren<Collider2D>()) c.enabled = false;
+            var rb = GetComponent<Rigidbody2D>(); if (rb) rb.simulated = false;
+
+            Destroy(gameObject, deathCleanupDelay);
         }
-
-        if (animator) animator.SetTrigger(hurtParam);
-
-        if (knockbackForce > 0f && rb)
-            rb.AddForce(hitNormal.normalized * knockbackForce, ForceMode2D.Impulse);
-
-        if (invincibleOnHurt) StartCoroutine(InvFrames());
-    }
-
-    System.Collections.IEnumerator InvFrames()
-    {
-        invincible = true;
-        yield return new WaitForSeconds(invincibleTime);
-        invincible = false;
-    }
-
-    void Die()
-    {
-        if (dead) return;
-        dead = true;
-
-        // desliga IA / tiro
-        foreach (var b in enemyBehaviours) if (b) b.enabled = false;
-
-        // desabilita colisão para não atrapalhar
-        foreach (var c in cols) c.enabled = false;
-
-        // zera velocidade
-        if (rb) rb.linearVelocity = Vector2.zero;
-
-        if (animator)
-        {
-            animator.SetTrigger(deathParam);
-            // destrói ao fim da animação via Animation Event chamando OnDeathAnimationEnd()
-            // ou usa um fallback de tempo:
-            Destroy(gameObject, 1.0f);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-
-    // Chame este método por Animation Event no último frame da animação de morte (opcional)
-    public void OnDeathAnimationEnd()
-    {
-        Destroy(gameObject);
     }
 }
