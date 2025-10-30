@@ -76,7 +76,7 @@ public class PlayerShoot2D : MonoBehaviour
 
     void SpawnBullet(GameObject prefab, float speed)
     {
-        int dir = sr && sr.flipX ? -1 : 1;
+        int dir = (sr && sr.flipX) ? -1 : 1;
         Vector2 shotDir = new Vector2(dir, 0f);
 
         Vector3 spawnPos = shootPoint.position;
@@ -89,24 +89,18 @@ public class PlayerShoot2D : MonoBehaviour
 
         var go = Instantiate(prefab, spawnPos, Quaternion.identity);
 
+        // coloque a bala do player na layer correta
+        go.layer = LayerMask.NameToLayer("BulletPlayer");
+
+        // configure o Bullet2D (sem mudar o Rigidbody que ele já cria/usa)
         var bullet = go.GetComponent<Bullet2D>();
-        if (bullet) bullet.Launch(shotDir, speed);
-
-        var brb = go.GetComponent<Rigidbody2D>();
-        if (brb)
+        if (bullet)
         {
-            brb.bodyType = RigidbodyType2D.Dynamic;
-            brb.simulated = true;
-            brb.gravityScale = 0f;
-            brb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-            brb.constraints = RigidbodyConstraints2D.None;
-            brb.linearVelocity = shotDir.normalized * speed;
-        }
-        else
-        {
-            Debug.LogError("[Shoot] Bullet prefab não tem Rigidbody2D.");
+            bullet.hitMask = LayerMask.GetMask("Enemy"); // **ESSENCIAL**
+            bullet.Launch(shotDir, speed);
         }
 
+        // ignore colisão da bala com o próprio player (opcional, mas recomendado)
         var bulletCols = go.GetComponentsInChildren<Collider2D>();
         foreach (var bc in bulletCols)
             foreach (var pc in playerCols)
@@ -115,4 +109,5 @@ public class PlayerShoot2D : MonoBehaviour
         if (rb && recoilKick > 0f)
             rb.AddForce(new Vector2(-dir * recoilKick, 0f), ForceMode2D.Impulse);
     }
+
 }
