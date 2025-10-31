@@ -1,87 +1,100 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
 public class Bullet2D : MonoBehaviour
 {
-    public float speed = 18f;
-    public float lifeTime = 2f;
+    [Header("Hit")]
+    public LayerMask hitMask;      // defina no prefab OU via Shooter
     public int damage = 1;
+    public bool destroyOnHit = true;
 
+    [Header("Move")]
+    public float speed = 18f;
+    public float maxDistance = 8f;
+
+    [Header("Anim (opcional)")]
+    public bool animateByDistance = true;
+    public string animStateName = "Bullet_Fly";
+
+    [Header("Debug")]
+    public bool debugLogs = false;
+
+    Vector2 startPos;
+    Vector2 dir = Vector2.right;
+    float traveled;
+    Animator anim;
+    int animStateHash;
+    const int LAYER_BASE = 0;
+
+    Collider2D col;
     Rigidbody2D rb;
-    Vector2 moveDir = Vector2.right;
-    float timer;
-    bool launched;
 
     void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
+        col = GetComponent<Collider2D>();
+        col.isTrigger = true;              // NÃO empurra
 
-        // Garantias úteis
-        rb.bodyType = RigidbodyType2D.Dynamic;
+        // Garante um RB2D cinemático pra física rastrear o Translate
+        rb = GetComponent<Rigidbody2D>();
+        if (!rb) rb = gameObject.AddComponent<Rigidbody2D>();
+        rb.bodyType = RigidbodyType2D.Kinematic;
         rb.simulated = true;
         rb.gravityScale = 0f;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-        rb.constraints = RigidbodyConstraints2D.None;
+
+        anim = GetComponent<Animator>();
+        animStateHash = Animator.StringToHash(animStateName);
     }
 
     void OnEnable()
     {
-        timer = 0f;
-        launched = false; // até chamar Launch
+        startPos = transform.position;
+        traveled = 0f;
+        if (animateByDistance && anim) anim.speed = 0f; else if (anim) anim.speed = 1f;
+        if (debugLogs) Debug.Log($"[Bullet] Spawn layer={LayerMask.LayerToName(gameObject.layer)} hitMask={hitMask.value}");
     }
 
-    /// <summary>Lança a bala numa direção. speedOverride opcional.</summary>
-    public void Launch(Vector2 dir, float speedOverride = -1f)
+    public void Launch(Vector2 direction, float speedOverride = -1f)
     {
-        if (dir.sqrMagnitude < 0.0001f)
-        {
-            Debug.LogWarning("[Bullet] Direção zero; usando Vector2.right");
-            dir = Vector2.right;
-        }
-
-        moveDir = dir.normalized;
+        dir = direction.sqrMagnitude < 0.0001f ? Vector2.right : direction.normalized;
         if (speedOverride > 0f) speed = speedOverride;
-
-        launched = true;
-        rb.isKinematic = false; // só pra garantir
-        rb.linearVelocity = moveDir * speed;
-        // Debug:
-        // Debug.Log($"[Bullet] Launch dir={moveDir} speed={speed}");
-    }
-
-    void FixedUpdate()
-    {
-        if (launched)
-        {
-            // mantém a velocidade constante
-            rb.linearVelocity = moveDir * speed;
-        }
     }
 
     void Update()
     {
-        timer += Time.deltaTime;
-        if (timer >= lifeTime) Destroy(gameObject);
+        float step = speed * Time.deltaTime;
+        transform.Translate(dir * step, Space.World);
+        traveled += step;
 
-        // Sanidade: se parado enquanto deveria mover, loga
-        if (launched && rb.linearVelocity.sqrMagnitude < 0.0001f)
+        if (animateByDistance && anim)
         {
-            // Debug.LogWarning("[Bullet] Velocidade ~0; checar Rigidbody2D (BodyType/Constraints) e speed.");
+            float t = Mathf.Clamp01(traveled / maxDistance);
+            anim.Play(animStateHash, LAYER_BASE, t);
         }
+
+        if (traveled >= maxDistance) Destroy(gameObject);
     }
 
-    // Se o collider NÃO é Trigger, use Collision:
-    void OnCollisionEnter2D(Collision2D col)
+    void OnTriggerEnter2D(Collider2D other)
     {
-        // if (col.collider.CompareTag("Enemy")) { /* aplicar dano */ }
-        Destroy(gameObject);
-    }
+        // Se a matriz de colisão bloquear, este método NEM É chamado.
+        // Se entrou aqui, checamos o mask.
+        int otherLayer = other.gameObject.layer;
+        bool maskOk = (hitMask.value & (1 << otherLayer)) != 0;
 
-    // Se marcar IsTrigger no collider, comente o método acima e descomente este:
-    // void OnTriggerEnter2D(Collider2D other)
-    // {
-    //     // if (other.CompareTag("Enemy")) { /* aplicar dano */ }
-    //     Destroy(gameObject);
-    // }
+        if (debugLogs) Debug.Log($"[Bullet] Trigger with {other.name} (layer={LayerMask.LayerToName(otherLayer)}) maskOk={maskOk}");
+
+        if (!maskOk) return;
+
+        // Tenta causar dano
+        bool hitSomething = false;
+
+        var eh = other.GetComponentInParent<EnemyHealth>();
+        if (eh) { eh.TakeDamage(damage); hitSomething = true; }
+
+        var ph = other.GetComponentInParent<PlayerHealth>();
+        if (ph) { ph.TakeDamage(damage); hitSomething = true; }
+
+        if (hitSomething && destroyOnHit) Destroy(gameObject);
+    }
 }

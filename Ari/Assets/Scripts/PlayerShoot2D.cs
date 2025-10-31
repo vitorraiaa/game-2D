@@ -12,6 +12,11 @@ public class PlayerShoot2D : MonoBehaviour
     public float spawnMargin = 0.08f;  // distância extra além do collider do player
     public float recoilKick = 0f;
 
+    [Header("Extra Attack")]
+    public bool hasExtraAttackPower = false;   // ligado pelo pickup
+    public GameObject extraBulletPrefab;       // arraste aqui o prefab especial
+    public float extraBulletSpeed = 14f;
+
     [Header("Animator (opcional)")]
     public Animator animator;
 
@@ -31,11 +36,18 @@ public class PlayerShoot2D : MonoBehaviour
     void Update()
     {
         cooldown -= Time.deltaTime;
-        bool fire = Input.GetButton("Fire1") || Input.GetMouseButton(0);
-        if (fire && cooldown <= 0f)
+
+        bool fireMain = Input.GetButton("Fire1") || Input.GetMouseButton(0);
+        if (fireMain && cooldown <= 0f)
         {
             ShootOnce();
             cooldown = 1f / Mathf.Max(0.01f, fireRate);
+        }
+
+        // Extra Attack no 'E'
+        if (hasExtraAttackPower && Input.GetKeyDown(KeyCode.E))
+        {
+            ShootExtra();
         }
     }
 
@@ -43,14 +55,30 @@ public class PlayerShoot2D : MonoBehaviour
     {
         if (!bulletPrefab || !shootPoint)
         {
-            Debug.LogWarning("Faltou bulletPrefab ou shootPoint.");
+            Debug.LogWarning("[Shoot] Faltou bulletPrefab ou shootPoint.");
             return;
         }
+        SpawnBullet(bulletPrefab, bulletSpeed);
+        if (animator) animator.SetTrigger("Attack");
+    }
 
-        int dir = sr && sr.flipX ? -1 : 1;
+    void ShootExtra()
+    {
+        if (!extraBulletPrefab || !shootPoint)
+        {
+            Debug.LogWarning("[Shoot] Faltou extraBulletPrefab ou shootPoint.");
+            return;
+        }
+        Debug.Log("[Shoot] EXTRA ATTACK!");
+        SpawnBullet(extraBulletPrefab, extraBulletSpeed);
+        if (animator) animator.SetTrigger("ExtraAttack");
+    }
+
+    void SpawnBullet(GameObject prefab, float speed)
+    {
+        int dir = (sr && sr.flipX) ? -1 : 1;
         Vector2 shotDir = new Vector2(dir, 0f);
 
-        // spawn fora do meu collider
         Vector3 spawnPos = shootPoint.position;
         if (TryGetComponent<Collider2D>(out var myCol))
         {
@@ -59,30 +87,20 @@ public class PlayerShoot2D : MonoBehaviour
         }
         else spawnPos += new Vector3(dir * 0.2f, 0f, 0f);
 
-        // instanciar
-        var go = Instantiate(bulletPrefab, spawnPos, Quaternion.identity);
+        var go = Instantiate(prefab, spawnPos, Quaternion.identity);
 
-        // 1) se tiver Bullet2D, usa Launch
+        // coloque a bala do player na layer correta
+        go.layer = LayerMask.NameToLayer("BulletPlayer");
+
+        // configure o Bullet2D (sem mudar o Rigidbody que ele já cria/usa)
         var bullet = go.GetComponent<Bullet2D>();
-        if (bullet) bullet.Launch(shotDir, bulletSpeed);
-
-        // 2) além disso, GARANTE velocidade direto no Rigidbody2D
-        var brb = go.GetComponent<Rigidbody2D>();
-        if (brb)
+        if (bullet)
         {
-            brb.bodyType = RigidbodyType2D.Dynamic;
-            brb.simulated = true;
-            brb.gravityScale = 0f;
-            brb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-            brb.constraints = RigidbodyConstraints2D.None;
-            brb.linearVelocity = shotDir.normalized * bulletSpeed;
-        }
-        else
-        {
-            Debug.LogError("Bullet prefab não tem Rigidbody2D.");
+            bullet.hitMask = LayerMask.GetMask("Enemy"); // **ESSENCIAL**
+            bullet.Launch(shotDir, speed);
         }
 
-        // ignorar colisão bala x player
+        // ignore colisão da bala com o próprio player (opcional, mas recomendado)
         var bulletCols = go.GetComponentsInChildren<Collider2D>();
         foreach (var bc in bulletCols)
             foreach (var pc in playerCols)
@@ -90,7 +108,6 @@ public class PlayerShoot2D : MonoBehaviour
 
         if (rb && recoilKick > 0f)
             rb.AddForce(new Vector2(-dir * recoilKick, 0f), ForceMode2D.Impulse);
-
-        if (animator) animator.SetTrigger("Attack");
     }
+
 }
