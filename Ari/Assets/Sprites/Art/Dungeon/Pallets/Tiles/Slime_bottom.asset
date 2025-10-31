@@ -12,9 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13b75c95f34a00d4e8c04f76b73312e6, type: 3}
   m_Name: Slime_bottom
   m_EditorClassIdentifier: 
-  m_AnimatedSprites: []
-  m_MinSpeed: 1
-  m_MaxSpeed: 1
+  m_AnimatedSprites:
+  - {fileID: 21300000, guid: 7788c0e9c992d4f2fadb09c925aad81f, type: 3}
+  - {fileID: 21300000, guid: 8862fb183aeef43978b5abd84ae4c94e, type: 3}
+  - {fileID: 21300000, guid: 246b4cef466c54bba85b2270121315b2, type: 3}
+  - {fileID: 21300000, guid: 7dd4eb07e91c842ffa5a176131b83508, type: 3}
+  - {fileID: 21300000, guid: 2160441f910ff45aba5fdba13682524e, type: 3}
+  m_MinSpeed: 4
+  m_MaxSpeed: 4
   m_AnimationStartTime: 0
   m_AnimationStartFrame: 0
   m_TileColliderType: 0
