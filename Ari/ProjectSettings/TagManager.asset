@@ -8,16 +8,16 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Ground
   - Water
   - UI
+  - Player
+  - Enemy
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Ladder
+  - Bullet_Player
+  - Bullet_Enemy
+  - OneWay
   - 
   - 
   - 
