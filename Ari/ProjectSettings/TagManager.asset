@@ -3,8 +3,7 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags:
-  - Ground
+  tags: []
   layers:
   - Default
   - TransparentFX
@@ -12,12 +11,12 @@ TagManager:
   - 
   - Water
   - UI
-  - Ground
-  - Player
-  - Bullet
-  - Ladder
-  - Bullet_Enemy
-  - Enemy
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
   - 
   - 
   - 
@@ -39,28 +38,8 @@ TagManager:
   - 
   - 
   m_SortingLayers:
-  - name: Background
-    uniqueID: 712803337
-    locked: 0
-  - name: Tiles
-    uniqueID: 3963368939
-    locked: 0
-  - name: Projectiles
-    uniqueID: 1023239155
-    locked: 0
-  - name: Details
-    uniqueID: 738356073
-    locked: 0
   - name: Default
     uniqueID: 0
-    locked: 0
-<<<<<<< HEAD
-  - name: Foreground
-    uniqueID: 437269845
-=======
-  - name: Ladder
-    uniqueID: 1557639059
->>>>>>> main
     locked: 0
   m_RenderingLayers:
   - Default

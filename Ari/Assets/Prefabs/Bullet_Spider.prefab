@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6931171503347216843}
   - component: {fileID: 7997129853542880816}
   - component: {fileID: 7173775273957859457}
-  m_Layer: 10
+  m_Layer: 11
   m_Name: Bullet_Spider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -198,9 +198,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a3892b2b6e88c47a0b810182725c541d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 0
+  damage: 1
+  destroyOnHit: 1
   speed: 4
   maxDistance: 20
   animateByDistance: 0
   animStateName: Bullet_Extra
-  damage: 1
-  hitLayer: Player
+  debugLogs: 0
