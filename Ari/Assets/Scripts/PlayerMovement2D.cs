@@ -39,6 +39,7 @@ public class PlayerMovement2D : MonoBehaviour
 
     [Header("Plataformas (OneWay)")]
     public LayerMask oneWayMask;              // layer das plataformas com PlatformEffector2D
+    public LayerMask bridgeMask;              // layer das pontes com PlatformEffector2D
     public float dropThroughTime = 0.35f;     // janela para atravessar ao apertar ↓
     public KeyCode dropKey = KeyCode.S;       // tecla para descer por OneWay
     public float groundCastDistance = 0.08f;  // “skin” do cast vertical
@@ -412,7 +413,10 @@ public class PlayerMovement2D : MonoBehaviour
 
         int mask = groundMask;
         if (!subindo && !querDropar)
+        {
             mask |= oneWayMask;
+            mask |= bridgeMask;  // Adiciona pontes também
+        }
 
         // 1) OverlapCircle
         if (groundCheck)
@@ -440,18 +444,26 @@ public class PlayerMovement2D : MonoBehaviour
         return false;
     }
 
-    // — Drop-through: ignorar colisões com a plataforma sob os pés temporariamente —
+    // — Drop-through: ignorar colisões com plataformas/pontes sob os pés temporariamente —
     void TryStartDropThroughOneWay()
     {
-        // só tenta dropar se há uma plataforma OneWay imediatamente abaixo
+        // Tenta dropar se há uma plataforma OneWay ou ponte imediatamente abaixo
         Bounds b = col.bounds;
         Vector2 center = new Vector2(b.center.x, b.min.y - 0.02f);
         Vector2 size   = new Vector2(b.size.x * 0.9f, 0.08f);
 
-        var hits = Physics2D.OverlapBoxAll(center, size, 0f, oneWayMask);
-        if (hits == null || hits.Length == 0) return;
+        // Verifica tanto OneWay quanto pontes
+        var oneWayHits = Physics2D.OverlapBoxAll(center, size, 0f, oneWayMask);
+        var bridgeHits = Physics2D.OverlapBoxAll(center, size, 0f, bridgeMask);
+        
+        // Combina os resultados
+        var allHits = new List<Collider2D>();
+        if (oneWayHits != null) allHits.AddRange(oneWayHits);
+        if (bridgeHits != null) allHits.AddRange(bridgeHits);
+        
+        if (allHits.Count == 0) return;
 
-        foreach (var platformCol in hits)
+        foreach (var platformCol in allHits)
         {
             foreach (var my in myCols)
             {
