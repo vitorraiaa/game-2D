@@ -97,6 +97,9 @@ public class PlayerMovement2D : MonoBehaviour
 
     // grounded estável + histerese - usando detecção por collision agora
     bool isGrounded;
+    
+    // Para verificação de pulo via raycast (como no exemplo Player2D)
+    private float distanceToGround;
 
     // Animator hashes
     int hSpeed, hIsGrounded, hYVelocity, hJump, hHighJump, hIsClimbing;
@@ -141,6 +144,10 @@ public class PlayerMovement2D : MonoBehaviour
         hIsClimbing  = Animator.StringToHash("IsClimbing");
 
         isGrounded = false;
+        
+        // Para verificação de pulo via raycast - tamanho do corpo do player
+        distanceToGround = col.bounds.extents.y;
+        
         CacheAnim(-1f, -999f, false, false, force:true);
     }
 
@@ -368,7 +375,22 @@ public class PlayerMovement2D : MonoBehaviour
             isJumping = false;
         }
         
-        if ((jumpPressed || jumpBufferStopwatch.ElapsedTimeSec() < jumpBuffer) && isGrounded)
+        // Verifica se pode pular usando raycast - aumentando a distância para garantir detecção
+        float rayDistance = distanceToGround + 0.1f; // Aumentei de 0.02f para 0.1f
+        bool canJump = Physics2D.Raycast(transform.position, Vector2.down, rayDistance, groundMask);
+        
+        // Debug quando pressiona pulo
+        if (jumpPressed)
+        {
+            Debug.Log($"[Player] Tentando pular - canJump: {canJump}, isGrounded: {isGrounded}, rayDistance: {rayDistance}");
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, rayDistance, groundMask);
+            if (hit.collider)
+                Debug.Log($"[Player] Raycast HIT: {hit.collider.name}, distance: {hit.distance}");
+            else
+                Debug.Log($"[Player] Raycast MISS - groundMask: {groundMask.value}");
+        }
+        
+        if ((jumpPressed || jumpBufferStopwatch.ElapsedTimeSec() < jumpBuffer) && canJump)
         {
             isJumping = true;
             jumpTimeDebuffStopwatch.Restart();
