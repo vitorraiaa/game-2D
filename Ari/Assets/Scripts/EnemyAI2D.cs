@@ -14,6 +14,10 @@ public class EnemyAI2D : MonoBehaviour
     public float attackRange = 6f; // ataca quando dist <= attackRange
     public float chaseRange  = 4f; // avança quando dist <= chaseRange
 
+    [Header("Alinhamento vertical")]
+    [Tooltip("Diferença máxima de Y para considerar 'mesma altura' (em unidades de mundo).")]
+    public float verticalWindow = 0.6f; // ajuste fino: 0.4–0.8 costuma ficar bom
+
     [Header("Move")]
     public bool canWalk = true;
     public float walkSpeed = 1.8f;
@@ -32,26 +36,32 @@ public class EnemyAI2D : MonoBehaviour
 
     void Awake()
     {
-    rb = GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
 
-    if (!target)
-    {
-        var p = GameObject.FindGameObjectWithTag("Player");
-        if (p) target = p.transform;
+        if (!target)
+        {
+            var p = GameObject.FindGameObjectWithTag("Player");
+            if (p) target = p.transform;
+        }
+
+        if (!spriteRoot) spriteRoot = transform;
+        if (!animator)   animator   = spriteRoot.GetComponent<Animator>();
+
+        // auto-descobrir o Shooter se não estiver setado no Inspector
+        if (!shooter) shooter = GetComponentInChildren<EnemyShoot2D>(includeInactive: true);
+
+        sr = spriteRoot.GetComponentInChildren<SpriteRenderer>();
+        rb.freezeRotation = true;
     }
-
-    if (!spriteRoot) spriteRoot = transform;
-    if (!animator)   animator   = spriteRoot.GetComponent<Animator>();
-
-    // 👉 auto-descobrir o Shooter
-    if (!shooter) shooter = GetComponentInChildren<EnemyShoot2D>(includeInactive: true);
-
-    sr = spriteRoot.GetComponentInChildren<SpriteRenderer>();
-    rb.freezeRotation = true;
-    }
-
 
     public void EnableMovement(bool enable) => allowMove = enable;
+
+    bool IsVerticallyAligned()
+    {
+        if (!target) return false;
+        float dy = Mathf.Abs(target.position.y - transform.position.y);
+        return dy <= verticalWindow;
+    }
 
     void FixedUpdate()
     {
@@ -62,21 +72,23 @@ public class EnemyAI2D : MonoBehaviour
             return;
         }
 
-        float dx = target.position.x - rb.position.x;
+        float dx   = target.position.x - rb.position.x;
         float dist = Mathf.Abs(dx);
+        bool aligned = IsVerticallyAligned();
 
-        bool inSight   = dist <= sightRange;
-        bool inAttack  = dist <= attackRange;
-        bool inChase   = dist <= chaseRange;
+        // Agora tudo (ver/atacar/perseguir) depende de também estar alinhado na vertical
+        bool inSight  = (dist <= sightRange)  && aligned;
+        bool inAttack = (dist <= attackRange) && aligned;
+        bool inChase  = (dist <= chaseRange)  && aligned;
 
         // Atirar (não depende de andar)
         if (inSight && inAttack && shooter)
         {
-            if (debugLogs) Debug.Log($"[EnemyAI] Attack: dist={dist:0.00} <= {attackRange}");
+            if (debugLogs) Debug.Log($"[EnemyAI] Attack: dist={dist:0.00} aligned={aligned}");
             shooter.TryAttack();
         }
 
-        // Caminhar só se permitido e bem perto
+        // Caminhar só se permitido e dentro da janela
         if (allowMove && canWalk && inSight && inChase)
         {
             float dir = Mathf.Sign(dx);
@@ -117,5 +129,12 @@ public class EnemyAI2D : MonoBehaviour
         Gizmos.color = Color.yellow; Gizmos.DrawWireSphere(transform.position, sightRange);
         Gizmos.color = Color.cyan;   Gizmos.DrawWireSphere(transform.position, attackRange);
         Gizmos.color = Color.magenta;Gizmos.DrawWireSphere(transform.position, chaseRange);
+
+        // linhas verdes mostrando a janela vertical
+        Gizmos.color = Color.green;
+        Vector3 a = transform.position + Vector3.up * verticalWindow;
+        Vector3 b = transform.position - Vector3.up * verticalWindow;
+        Gizmos.DrawLine(a + Vector3.left*2f, a + Vector3.right*2f);
+        Gizmos.DrawLine(b + Vector3.left*2f, b + Vector3.right*2f);
     }
 }
