@@ -78,6 +78,13 @@ public class PlayerMovement2D : MonoBehaviour
     bool  emHighJumpSubida;
     float noCutTimer;
     bool  queuedHighJump = false;
+    
+    // Nova lógica com Stopwatch
+    private Stopwatch coyoteTimeStopwatch = new Stopwatch();
+    private Stopwatch jumpBufferStopwatch = new Stopwatch();
+    private Stopwatch jumpTimeDebuffStopwatch = new Stopwatch();
+    private bool isJumping = false;
+    private bool jumpPressed = false;
 
     // drop-through
     float dropThroughTimer;
@@ -88,10 +95,8 @@ public class PlayerMovement2D : MonoBehaviour
     Rigidbody2D currentPlatformRb;
     Vector2 lastPlatformVelocity;
 
-    // grounded estável + histerese
-    bool isGrounded;          // estado atual estável
-    bool rawGrounded;         // leitura crua do frame
-    float groundedStateTimer; // tempo no estado atual
+    // grounded estável + histerese - usando detecção por collision agora
+    bool isGrounded;
 
     // Animator hashes
     int hSpeed, hIsGrounded, hYVelocity, hJump, hHighJump, hIsClimbing;
@@ -135,8 +140,7 @@ public class PlayerMovement2D : MonoBehaviour
         hHighJump    = Animator.StringToHash("HighJump");
         hIsClimbing  = Animator.StringToHash("IsClimbing");
 
-        isGrounded = rawGrounded = false;
-        groundedStateTimer = 0f;
+        isGrounded = false;
         CacheAnim(-1f, -999f, false, false, force:true);
     }
 
@@ -146,10 +150,26 @@ public class PlayerMovement2D : MonoBehaviour
         inputY = Input.GetAxisRaw("Vertical");
         if (inputX != 0) sr.flipX = inputX < 0;
 
-        // Jump buffer
+        // Jump buffer (mantido por compatibilidade)
         if (Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.Space))
             jumpBufferTimer = jumpBuffer;
         jumpBufferTimer -= Time.deltaTime;
+        
+        // Nova lógica de pulo
+        HandleJumpForce();
+        if (jumpTimeDebuffStopwatch.ElapsedTimeSec() < coyoteTime + 0.01f)
+        {
+            return;
+        }
+
+        // Detecção via collision - PlatformEffector2D cuida automaticamente
+        jumpPressed = Input.GetButtonDown("Jump") || Input.GetKeyDown(KeyCode.Space);
+
+        HandleJumpBuffer();
+        HandleCoyoteTime();
+        HandleJump();
+        
+        jumpPressed = false;
 
         // High Jump
         if (hasHighJumpPower && Input.GetKeyDown(KeyCode.Q))
@@ -181,29 +201,10 @@ public class PlayerMovement2D : MonoBehaviour
 
     void FixedUpdate()
     {
-        // 1) Grounded bruto
-        rawGrounded = ComputeRawGrounded(out currentPlatformRb);
-
-        // 2) Histerese de grounded
-        if (rawGrounded != isGrounded)
+        // Verificação do jumpTimeDebuff - retorna cedo se ainda no debuff
+        if (jumpTimeDebuffStopwatch.ElapsedTimeSec() < coyoteTime + 0.01f)
         {
-            groundedStateTimer += Time.fixedDeltaTime;
-
-            bool allowToggle = groundedStateTimer >= groundHysteresis;
-
-            // Para sair de grounded, exigimos uma queda perceptível
-            if (isGrounded && !rawGrounded)
-                allowToggle &= Mathf.Abs(rb.linearVelocity.y) > ungroundYThreshold;
-
-            if (allowToggle)
-            {
-                isGrounded = rawGrounded;
-                groundedStateTimer = 0f;
-            }
-        }
-        else
-        {
-            groundedStateTimer = 0f;
+            return;
         }
 
         // Coyote time
@@ -235,106 +236,24 @@ public class PlayerMovement2D : MonoBehaviour
         }
         else rb.gravityScale = 1f;
 
-        // Movimento horizontal
+        // Movimento horizontal simples como no exemplo
+        float moveInput = inputX;
         bool runHeld = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-        float targetSpeed = runHeld ? runSpeed : walkSpeed;
+        float speed = runHeld ? runSpeed : walkSpeed;
+        rb.linearVelocity = new Vector2(moveInput * speed, rb.linearVelocity.y);
 
-        float alvoX = inputX * targetSpeed;
-        float acel  = isGrounded ? aceleracaoNoChao : aceleracaoNoAr;
-        float novoX = Mathf.MoveTowards(rb.linearVelocity.x, alvoX, acel * Time.fixedDeltaTime);
-
-        // High jump
-        if (queuedHighJump)
+        // High jump simplificado
+        if (queuedHighJump && isGrounded)
         {
-            if (isGrounded || coyoteTimer > -highJumpCoyote)
-            {
-                queuedHighJump    = false;
-                emHighJumpSubida  = true;
-                noCutTimer        = highJumpNoCutTime;
-                tempoDesdeInicioDoPulo = 0f;
-
-                float extraX = (currentPlatformRb ? currentPlatformRb.linearVelocity.x : 0f) * 0.5f;
-                rb.linearVelocity = new Vector2(novoX + extraX, highJumpForce);
-                if (animator) animator.SetTrigger(hHighJump);
-
-                emSubidaLimitada = limitarAlturaDoPulo;
-                return;
-            }
-        }
-
-        // Pulo normal
-        bool querPular = (jumpBufferTimer > 0f);
-        bool podePularAgora = (coyoteTimer > 0f) && querPular;
-
-        if (podePularAgora)
-        {
-            jumpBufferTimer = 0f;
-            coyoteTimer     = 0f;
-
-            emHighJumpSubida = false;
-            noCutTimer       = 0f;
-            tempoDesdeInicioDoPulo = 0f;
-
-            float extraX = (currentPlatformRb ? currentPlatformRb.linearVelocity.x : 0f) * 0.5f;
-            rb.linearVelocity = new Vector2(novoX + extraX, forcaPulo);
-            if (animator) animator.SetTrigger(hJump);
-
-            emSubidaLimitada = limitarAlturaDoPulo;
-            return;
-        }
-
-        // Gravidade variável (jump cut)
-        if (rb.linearVelocity.y < 0f)
-        {
-            rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (gravidadeDescida - 1f) * Time.fixedDeltaTime;
-        }
-        else if (rb.linearVelocity.y > 0f)
-        {
-            bool podeCortarSubida = (noCutTimer <= 0f);
-            if (podeCortarSubida && !Input.GetButton("Jump") && !Input.GetKey(KeyCode.Space))
-            {
-                rb.linearVelocity += Vector2.up * Physics2D.gravity.y * (gravidadeSubida - 1f) * Time.fixedDeltaTime;
-            }
-        }
-
-        // Limite de subida (opcional)
-        if (limitarAlturaDoPulo && emSubidaLimitada && rb.linearVelocity.y > 0f)
-        {
-            tempoDesdeInicioDoPulo += Time.fixedDeltaTime;
-            float limite = emHighJumpSubida ? tempoMaxSubidaHigh : tempoMaxSubida;
-
-            bool soltouBotao    = !Input.GetButton("Jump") && !Input.GetKey(KeyCode.Space);
-            bool estourouJanela = tempoDesdeInicioDoPulo >= limite;
-
-            bool deveCortar = estourouJanela || (soltouBotao && noCutTimer <= 0f);
-            if (deveCortar)
-            {
-                rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
-                emSubidaLimitada = false;
-                emHighJumpSubida = false;
-            }
-        }
-
-        if (rb.linearVelocity.y <= 0f)
-        {
-            emSubidaLimitada = false;
-            emHighJumpSubida = false;
+            queuedHighJump = false;
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, highJumpForce);
+            if (animator) animator.SetTrigger(hHighJump);
         }
 
         // Descer por OneWay → empurra levemente para baixo quando no chão
         if (dropThroughTimer > 0f && isGrounded)
         {
             rb.position += Vector2.down * (groundCastDistance * 1.5f);
-        }
-
-        // aplica X mantendo Y
-        rb.linearVelocity = new Vector2(novoX, rb.linearVelocity.y);
-
-        // janela anti-corte (high jump)
-        if (noCutTimer > 0f)
-        {
-            noCutTimer -= Time.fixedDeltaTime;
-            if (noCutTimer < 0f) noCutTimer = 0f;
         }
     }
 
@@ -382,6 +301,31 @@ public class PlayerMovement2D : MonoBehaviour
         if (animator) animator.SetBool(hIsClimbing, false);
     }
 
+    // — Detecção de chão via Collision (PlatformEffector2D cuida automaticamente) —
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        // Verifica se colidiu com chão, plataformas ou pontes
+        int layer = collision.gameObject.layer;
+        LayerMask allGroundLayers = groundMask | oneWayMask | bridgeMask;
+        
+        if ((allGroundLayers & (1 << layer)) != 0)
+        {
+            isGrounded = true;
+        }
+    }
+    
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        // Verifica se saiu do chão, plataformas ou pontes
+        int layer = collision.gameObject.layer;
+        LayerMask allGroundLayers = groundMask | oneWayMask | bridgeMask;
+        
+        if ((allGroundLayers & (1 << layer)) != 0)
+        {
+            isGrounded = false;
+        }
+    }
+
     // — Escada (Trigger) —
     void OnTriggerEnter2D(Collider2D other)
     {
@@ -403,46 +347,59 @@ public class PlayerMovement2D : MonoBehaviour
         }
     }
 
-    // — Grounded bruto (Ground + OneWay) —
-    bool ComputeRawGrounded(out Rigidbody2D platformRb)
+    // — Nova lógica de pulo com Stopwatch —
+    private void HandleJumpForce()
     {
-        platformRb = null;
-
-        bool querDropar = dropThroughTimer > 0f;
-        bool subindo = rb.linearVelocity.y > 0.05f;
-
-        int mask = groundMask;
-        if (!subindo && !querDropar)
+        if (!Input.GetButton("Jump") && !Input.GetKey(KeyCode.Space) && isJumping)
         {
-            mask |= oneWayMask;
-            mask |= bridgeMask;  // Adiciona pontes também
-        }
-
-        // 1) OverlapCircle
-        if (groundCheck)
-        {
-            var hitCol = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, mask);
-            if (hitCol)
+            if (rb.linearVelocity.y > 0)
             {
-                platformRb = hitCol.attachedRigidbody;
-                return true;
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
             }
+            
+            isJumping = false;
         }
-
-        // 2) BoxCast curto
-        if (col)
-        {
-            Bounds b = col.bounds;
-            float d = Mathf.Max(0.02f, groundCastDistance);
-            var cast = Physics2D.BoxCast(b.center, b.size, 0f, Vector2.down, d, mask);
-            if (cast.collider != null)
-            {
-                platformRb = cast.rigidbody;
-                return true;
-            }
-        }
-        return false;
     }
+
+    private void HandleJump()
+    {
+        if (isGrounded)
+        {
+            isJumping = false;
+        }
+        
+        if ((jumpPressed || jumpBufferStopwatch.ElapsedTimeSec() < jumpBuffer) && isGrounded)
+        {
+            isJumping = true;
+            jumpTimeDebuffStopwatch.Restart();
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, forcaPulo);
+            if (animator) animator.SetTrigger(hJump);
+        }
+    }
+    
+    private void HandleJumpBuffer()
+    {
+        if (jumpPressed)
+        {
+            jumpBufferStopwatch.Restart();
+        }
+    }
+    
+    private void HandleCoyoteTime()
+    {
+        if (isGrounded)
+        {
+            coyoteTimeStopwatch.Restart();
+            return;
+        }
+        
+        if (coyoteTimeStopwatch.ElapsedTimeSec() < coyoteTime)
+        {
+            isGrounded = true;
+        }
+    }
+
+    // — Grounded removido - usa detecção direta no Update —
 
     // — Drop-through: ignorar colisões com plataformas/pontes sob os pés temporariamente —
     void TryStartDropThroughOneWay()

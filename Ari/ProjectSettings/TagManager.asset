@@ -53,5 +53,8 @@ TagManager:
   - name: Fowardground
     uniqueID: 2373118329
     locked: 0
+  - name: Teste
+    uniqueID: 3286559491
+    locked: 0
   m_RenderingLayers:
   - Default
