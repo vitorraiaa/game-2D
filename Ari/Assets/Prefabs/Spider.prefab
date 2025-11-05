@@ -64,7 +64,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -4.36, y: -15.6, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5098922453215661596}
@@ -208,9 +208,9 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.6, y: 0.49}
-  m_Direction: 0
+  m_Offset: {x: 0.000000029805307, y: 0}
+  m_Size: {x: 0.60000026, y: 0.4}
+  m_Direction: 1
 --- !u!114 &1234610387960351671
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -228,10 +228,11 @@ MonoBehaviour:
   shooter: {fileID: 0}
   animator: {fileID: 0}
   sightRange: 10
-  attackRange: 6
-  chaseRange: 4
+  attackRange: 2.5
+  chaseRange: 8
+  verticalWindow: 0.6
   canWalk: 1
-  walkSpeed: 1.6
+  walkSpeed: 2
   accel: 12
   faceTarget: 1
   debugLogs: 0
@@ -247,7 +248,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60b98ff80726f41fba577d690807ed53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 3
+  maxHP: 2
   deathCleanupDelay: 0.8
 --- !u!114 &595103705588950758
 MonoBehaviour:
@@ -265,6 +266,6 @@ MonoBehaviour:
   bulletPrefab: {fileID: 26892006197619871, guid: 42c552c8e40784b89990abb0d8b74b9b, type: 3}
   animator: {fileID: 0}
   bulletSpeed: 10
-  fireCooldown: 1.2
+  fireCooldown: 0.6
   fireFailSafeDelay: 0.18
   useAnimEvent: 1

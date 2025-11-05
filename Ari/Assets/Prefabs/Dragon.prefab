@@ -208,9 +208,9 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 1.37, y: 0.71}
-  m_Direction: 0
+  m_Offset: {x: 0.00000003973646, y: 0}
+  m_Size: {x: 1.3700004, y: 0.7033338}
+  m_Direction: 1
 --- !u!114 &1026785091285422446
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -223,7 +223,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60b98ff80726f41fba577d690807ed53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 3
+  maxHP: 5
   deathCleanupDelay: 0.8
 --- !u!114 &6528796084475329962
 MonoBehaviour:
@@ -240,7 +240,7 @@ MonoBehaviour:
   shootPoint: {fileID: 7173395161724867121}
   bulletPrefab: {fileID: 26892006197619871, guid: 7df0de240a38948e6b0475e5b5c479c3, type: 3}
   animator: {fileID: 0}
-  bulletSpeed: 10
+  bulletSpeed: 7
   fireCooldown: 1.2
   fireFailSafeDelay: 0.18
   useAnimEvent: 1
@@ -261,8 +261,9 @@ MonoBehaviour:
   shooter: {fileID: 0}
   animator: {fileID: 0}
   sightRange: 10
-  attackRange: 6
-  chaseRange: 4
+  attackRange: 8
+  chaseRange: 9
+  verticalWindow: 0.6
   canWalk: 1
   walkSpeed: 1.6
   accel: 12

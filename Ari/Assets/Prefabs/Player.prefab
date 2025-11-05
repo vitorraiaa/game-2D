@@ -246,17 +246,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 915ab9eadbaf446159d0875257bb24aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  walkSpeed: 3.5
-  runSpeed: 8
-  aceleracaoNoChao: 60
-  aceleracaoNoAr: 40
-  forcaPulo: 12
-  coyoteTime: 0.12
-  jumpBuffer: 0.12
-  gravidadeDescida: 2.5
+  walkSpeed: 3
+  runSpeed: 4.5
+  aceleracaoNoChao: 10
+  aceleracaoNoAr: 1
+  forcaPulo: 7
+  coyoteTime: 0.01
+  jumpBuffer: 0.01
+  gravidadeDescida: 2
   gravidadeSubida: 2
   limitarAlturaDoPulo: 1
-  tempoMaxSubida: 0.16
+  tempoMaxSubida: 0.05
   hasHighJumpPower: 0
   highJumpForce: 18
   highJumpCoyote: 0.1
@@ -270,6 +270,9 @@ MonoBehaviour:
   oneWayMask:
     serializedVersion: 2
     m_Bits: 4096
+  bridgeMask:
+    serializedVersion: 2
+    m_Bits: 0
   dropThroughTime: 0.35
   dropKey: 115
   groundCastDistance: 0.06

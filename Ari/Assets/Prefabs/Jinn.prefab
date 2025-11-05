@@ -33,7 +33,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -5.07, y: -13.6, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5093091947129153929}
@@ -168,7 +168,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -197,10 +197,11 @@ MonoBehaviour:
   shooter: {fileID: 0}
   animator: {fileID: 0}
   sightRange: 10
-  attackRange: 6
-  chaseRange: 4
+  attackRange: 3
+  chaseRange: 5
+  verticalWindow: 0.6
   canWalk: 1
-  walkSpeed: 1.6
+  walkSpeed: 1.2
   accel: 12
   faceTarget: 1
   debugLogs: 0
@@ -216,7 +217,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60b98ff80726f41fba577d690807ed53, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 3
+  maxHP: 4
   deathCleanupDelay: 0.8
 --- !u!114 &4270733124697516377
 MonoBehaviour:

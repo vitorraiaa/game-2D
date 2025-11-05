@@ -64,7 +64,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -5.83, y: -8.1, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5742311506857164946}
@@ -181,8 +181,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: -0.0073431334, y: -0.013462424}
-  m_Size: {x: 0.3941835, y: 0.72692484}
+  m_Offset: {x: -0.0073431334, y: 0}
+  m_Size: {x: 0.3941835, y: 0.5}
   m_Direction: 0
 --- !u!50 &5739993016041815633
 Rigidbody2D:
@@ -228,10 +228,11 @@ MonoBehaviour:
   shooter: {fileID: 0}
   animator: {fileID: 0}
   sightRange: 10
-  attackRange: 8
+  attackRange: 4
   chaseRange: 6
+  verticalWindow: 0.6
   canWalk: 1
-  walkSpeed: 1.6
+  walkSpeed: 1
   accel: 12
   faceTarget: 1
   debugLogs: 0
@@ -264,7 +265,7 @@ MonoBehaviour:
   shootPoint: {fileID: 5742311506857164946}
   bulletPrefab: {fileID: 26892006197619871, guid: 4d961ebdd64a642fc8ed25fd03db92ad, type: 3}
   animator: {fileID: 0}
-  bulletSpeed: 10
-  fireCooldown: 1.2
+  bulletSpeed: 8
+  fireCooldown: 2
   fireFailSafeDelay: 0.18
   useAnimEvent: 1

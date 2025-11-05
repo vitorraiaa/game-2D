@@ -1102,6 +1102,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4270733124697516377, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
+      propertyPath: fireCooldown
+      value: 1.2
+      objectReference: {fileID: 0}
     - target: {fileID: 5394497102313972705, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
       propertyPath: m_Name
       value: Jinn
@@ -1112,11 +1116,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7135729633058751229, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
       propertyPath: chaseRange
-      value: 8
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7135729633058751229, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
       propertyPath: attackRange
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -28488,26 +28492,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1234610387960351671, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: chaseRange
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1234610387960351671, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: sightRange
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 1234610387960351671, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: attackRange
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6882348511755626562, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6882348511755626562, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 6882348511755626562, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
       propertyPath: m_LocalPosition.x
       value: 48
@@ -28871,26 +28855,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1234610387960351671, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: chaseRange
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1234610387960351671, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: sightRange
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 1234610387960351671, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: attackRange
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6882348511755626562, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6882348511755626562, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 6882348511755626562, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
       propertyPath: m_LocalPosition.x
       value: 109
@@ -28948,26 +28912,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1234610387960351671, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: chaseRange
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1234610387960351671, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: sightRange
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 1234610387960351671, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: attackRange
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6882348511755626562, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6882348511755626562, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 6882348511755626562, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
       propertyPath: m_LocalPosition.x
       value: 11
@@ -29540,14 +29484,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 225795027877020831, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 225795027877020831, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 225795027877020831, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 88
       objectReference: {fileID: 0}
@@ -29590,18 +29526,6 @@ PrefabInstance:
     - target: {fileID: 5394497102313972705, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
       propertyPath: m_Name
       value: Jinn (4)
-      objectReference: {fileID: 0}
-    - target: {fileID: 5441645372012050283, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: m_GravityScale
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7135729633058751229, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: chaseRange
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 7135729633058751229, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: attackRange
-      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -29776,26 +29700,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1234610387960351671, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: chaseRange
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1234610387960351671, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: sightRange
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 1234610387960351671, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: attackRange
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6882348511755626562, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6882348511755626562, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 6882348511755626562, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
       propertyPath: m_LocalPosition.x
       value: 24
@@ -30386,14 +30290,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 225795027877020831, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 225795027877020831, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 225795027877020831, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 28
       objectReference: {fileID: 0}
@@ -30436,18 +30332,6 @@ PrefabInstance:
     - target: {fileID: 5394497102313972705, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
       propertyPath: m_Name
       value: Jinn (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 5441645372012050283, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: m_GravityScale
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7135729633058751229, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: chaseRange
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 7135729633058751229, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: attackRange
-      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -51035,7 +50919,7 @@ Transform:
   m_GameObject: {fileID: 1352432116}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3, y: -2, z: -10}
+  m_LocalPosition: {x: 21, y: 2, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -52794,11 +52678,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7560569244481166687, guid: 71001a89c7eb9466ea71629fbc143aae, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3
+      value: 21
       objectReference: {fileID: 0}
     - target: {fileID: 7560569244481166687, guid: 71001a89c7eb9466ea71629fbc143aae, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7560569244481166687, guid: 71001a89c7eb9466ea71629fbc143aae, type: 3}
       propertyPath: m_LocalPosition.z
@@ -52883,14 +52767,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 225795027877020831, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 225795027877020831, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 225795027877020831, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 125
       objectReference: {fileID: 0}
@@ -52934,18 +52810,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Jinn (5)
       objectReference: {fileID: 0}
-    - target: {fileID: 5441645372012050283, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: m_GravityScale
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7135729633058751229, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: chaseRange
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 7135729633058751229, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: attackRange
-      value: 4
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -52959,26 +52823,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1234610387960351671, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: chaseRange
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 1234610387960351671, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: sightRange
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 1234610387960351671, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: attackRange
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6882348511755626562, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6882348511755626562, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 6882348511755626562, guid: db4c454cbc3194c038343cea7e96ec69, type: 3}
       propertyPath: m_LocalPosition.x
       value: 63
@@ -53681,14 +53525,6 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 225795027877020831, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 225795027877020831, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 225795027877020831, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
       propertyPath: m_LocalPosition.x
       value: 28
       objectReference: {fileID: 0}
@@ -53731,18 +53567,6 @@ PrefabInstance:
     - target: {fileID: 5394497102313972705, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
       propertyPath: m_Name
       value: Jinn (3)
-      objectReference: {fileID: 0}
-    - target: {fileID: 5441645372012050283, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: m_GravityScale
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7135729633058751229, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: chaseRange
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 7135729633058751229, guid: 197166d23b5944bde9a4fa93400527c7, type: 3}
-      propertyPath: attackRange
-      value: 4
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -54035,7 +53859,7 @@ Transform:
   m_GameObject: {fileID: 2013561155}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3, y: -2, z: -10}
+  m_LocalPosition: {x: 21, y: 2, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
