@@ -68,6 +68,7 @@ public class AcidTile : MonoBehaviour
         }
     }
 
+
     void OnTriggerStay2D(Collider2D collision)
     {
         // Debug contínuo para verificar se algo está no trigger
