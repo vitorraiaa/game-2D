@@ -8,19 +8,27 @@ public class PlayerShoot2D : MonoBehaviour
     public Transform shootPoint;
     public GameObject bulletPrefab;
     public float bulletSpeed = 18f;
-    public float fireRate = 6f;        // tiros por segundo
-    public float spawnMargin = 0.08f;  // distância extra além do collider do player
+
+    [Header("Main Shot Cooldown")]
+    [Tooltip("Tiros por segundo segurando o botão. Valores menores = menos spam.")]
+    public float fireRate = 3f;          // antes 6f, agora mais cadenciado
+    public float spawnMargin = 0.08f;    // distância extra além do collider do player
     public float recoilKick = 0f;
 
     [Header("Extra Attack")]
     public bool hasExtraAttackPower = false;   // ligado pelo pickup
-    public GameObject extraBulletPrefab;       // arraste aqui o prefab especial
+    public GameObject extraBulletPrefab;       // prefab especial
     public float extraBulletSpeed = 14f;
+    [Tooltip("Cooldown em segundos entre usos do ataque extra (tecla E).")]
+    public float extraAttackCooldown = 2.5f;
 
     [Header("Animator (opcional)")]
     public Animator animator;
 
-    float cooldown;
+    // internos
+    float fireCooldownTimer;
+    float extraCooldownTimer;
+
     SpriteRenderer sr;
     Rigidbody2D rb;
     Collider2D[] playerCols;
@@ -35,19 +43,23 @@ public class PlayerShoot2D : MonoBehaviour
 
     void Update()
     {
-        cooldown -= Time.deltaTime;
+        // avança timers
+        if (fireCooldownTimer > 0f)  fireCooldownTimer  -= Time.deltaTime;
+        if (extraCooldownTimer > 0f) extraCooldownTimer -= Time.deltaTime;
 
+        // tiro normal (segurando botão / mouse)
         bool fireMain = Input.GetButton("Fire1") || Input.GetMouseButton(0);
-        if (fireMain && cooldown <= 0f)
+        if (fireMain && fireCooldownTimer <= 0f)
         {
             ShootOnce();
-            cooldown = 1f / Mathf.Max(0.01f, fireRate);
+            fireCooldownTimer = 1f / Mathf.Max(0.01f, fireRate);
         }
 
-        // Extra Attack no 'E'
-        if (hasExtraAttackPower && Input.GetKeyDown(KeyCode.E))
+        // ataque extra (E) com cooldown próprio
+        if (hasExtraAttackPower && Input.GetKeyDown(KeyCode.E) && extraCooldownTimer <= 0f)
         {
             ShootExtra();
+            extraCooldownTimer = extraAttackCooldown;
         }
     }
 
@@ -55,23 +67,28 @@ public class PlayerShoot2D : MonoBehaviour
     {
         if (!bulletPrefab || !shootPoint)
         {
-            Debug.LogWarning("[Shoot] Faltou bulletPrefab ou shootPoint.");
+            Debug.LogWarning("[PlayerShoot] Faltou bulletPrefab ou shootPoint.");
             return;
         }
+
         SpawnBullet(bulletPrefab, bulletSpeed);
-        if (animator) animator.SetTrigger("Attack");
+
+        if (animator)
+            animator.SetTrigger("Attack");
     }
 
     void ShootExtra()
     {
         if (!extraBulletPrefab || !shootPoint)
         {
-            Debug.LogWarning("[Shoot] Faltou extraBulletPrefab ou shootPoint.");
+            Debug.LogWarning("[PlayerShoot] Faltou extraBulletPrefab ou shootPoint.");
             return;
         }
-        Debug.Log("[Shoot] EXTRA ATTACK!");
+
         SpawnBullet(extraBulletPrefab, extraBulletSpeed);
-        if (animator) animator.SetTrigger("ExtraAttack");
+
+        if (animator)
+            animator.SetTrigger("ExtraAttack");
     }
 
     void SpawnBullet(GameObject prefab, float speed)
@@ -79,35 +96,45 @@ public class PlayerShoot2D : MonoBehaviour
         int dir = (sr && sr.flipX) ? -1 : 1;
         Vector2 shotDir = new Vector2(dir, 0f);
 
+        // posição de spawn na frente do player
         Vector3 spawnPos = shootPoint.position;
         if (TryGetComponent<Collider2D>(out var myCol))
         {
             float halfX = myCol.bounds.extents.x;
             spawnPos += new Vector3(dir * (halfX + spawnMargin), 0f, 0f);
         }
-        else spawnPos += new Vector3(dir * 0.2f, 0f, 0f);
+        else
+        {
+            spawnPos += new Vector3(dir * 0.2f, 0f, 0f);
+        }
 
         var go = Instantiate(prefab, spawnPos, Quaternion.identity);
 
-        // coloque a bala do player na layer correta
+        // layer da bala do player
         go.layer = LayerMask.NameToLayer("BulletPlayer");
 
-        // configure o Bullet2D (sem mudar o Rigidbody que ele já cria/usa)
+        // configura Bullet2D
         var bullet = go.GetComponent<Bullet2D>();
         if (bullet)
         {
-            bullet.hitMask = LayerMask.GetMask("Enemy"); // **ESSENCIAL**
+            // garante que só acerta inimigos/boss
+            bullet.hitMask = LayerMask.GetMask("Enemy");
             bullet.Launch(shotDir, speed);
         }
 
-        // ignore colisão da bala com o próprio player (opcional, mas recomendado)
+        // ignora colisão com o próprio player
         var bulletCols = go.GetComponentsInChildren<Collider2D>();
         foreach (var bc in bulletCols)
+        {
+            if (!bc) continue;
             foreach (var pc in playerCols)
-                if (bc && pc) Physics2D.IgnoreCollision(bc, pc, true);
+            {
+                if (pc) Physics2D.IgnoreCollision(bc, pc, true);
+            }
+        }
 
+        // recuo opcional
         if (rb && recoilKick > 0f)
             rb.AddForce(new Vector2(-dir * recoilKick, 0f), ForceMode2D.Impulse);
     }
-
 }
