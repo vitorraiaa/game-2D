@@ -14,6 +14,18 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Level_0_Design.unity
     guid: 633f03e0944244de886ba5181c4ed8f4
+  - enabled: 1
+    path: Assets/Scenes/Between_Scene_1.unity
+    guid: 0789a7f4279344fa4babec039c30430e
+  - enabled: 1
+    path: Assets/Scenes/Cutscene_Forest.unity
+    guid: 026e7c1d63fbf4b4c9d3fdc330ecb1d9
+  - enabled: 1
+    path: Assets/Scenes/Level_1_Design.unity
+    guid: 68671cee016214dffb0acb0a549db9d5
+  - enabled: 1
+    path: Assets/Scenes/Cutscene_Dungeon.unity
+    guid: 6f7b76950969d4f71862fed35879f13e
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

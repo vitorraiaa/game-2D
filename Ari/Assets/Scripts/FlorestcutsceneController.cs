@@ -2,10 +2,10 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
-public class IntroSceneController : MonoBehaviour
+public class FlorestcutsceneController : MonoBehaviour
 {
     [SerializeField] private float waitTime = 7f;
-    [SerializeField] private string nextScene = "Cutscene_Forest";
+    [SerializeField] private string nextScene = "Level_0_Design";
     [SerializeField] private FadeManager fade; // arraste o FadePanel (com FadeManager)
 
 
