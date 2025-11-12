@@ -26,6 +26,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Cutscene_Dungeon.unity
     guid: 6f7b76950969d4f71862fed35879f13e
+  - enabled: 1
+    path: Assets/Scenes/Final_Level.unity
+    guid: 5389b2194714b4d34a5836099e2cb547
+  - enabled: 1
+    path: Assets/Scenes/Cutscene_Castle.unity
+    guid: 0f639dfc9a3a8429bbf7168674e1e9e3
+  - enabled: 1
+    path: Assets/Scenes/Cutscene_Victory.unity
+    guid: b61f2b7979023422898ea519856acdf7
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

@@ -83,6 +83,9 @@ public class BossHealth : MonoBehaviour
             var rb = GetComponent<Rigidbody2D>();
             if (rb) rb.simulated = false;
 
+            // Triggera a cutscene de vitória
+            FindObjectOfType<VictoryCutsceneTrigger>()?.OnBossDefeated();
+
             Destroy(gameObject, deathCleanupDelay);
         }
     }
