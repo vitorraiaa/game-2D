@@ -114,4 +114,17 @@ public class PlayerHealth : MonoBehaviour
         if (destroyOnDeath)
             Destroy(gameObject);
     }
+
+    public void Heal(int amount)
+    {
+    if (hp >= maxHP) return; // Já está com vida cheia
+    
+    hp += amount;
+    hp = Mathf.Min(hp, maxHP); // Não passa do máximo
+    
+    Debug.Log($"Player curou {amount} HP! Vida: {hp}/{maxHP}");
+    
+    // Feedback visual opcional
+    if (anim) anim.SetTrigger("Heal");
+    }
 }

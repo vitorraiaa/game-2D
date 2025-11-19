@@ -47,6 +47,7 @@ GameObject:
   - component: {fileID: 8186666506293593005}
   - component: {fileID: 3512327951240252108}
   - component: {fileID: 782829147327281835}
+  - component: {fileID: 3533833769450934442}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -233,6 +234,7 @@ MonoBehaviour:
   hasExtraAttackPower: 0
   extraBulletPrefab: {fileID: 26892006197619871, guid: 5741f9f681dd7454190e14897f953aaa, type: 3}
   extraBulletSpeed: 20
+  extraAttackCooldown: 2.5
   animator: {fileID: 0}
 --- !u!114 &3512327951240252108
 MonoBehaviour:
@@ -301,6 +303,18 @@ MonoBehaviour:
   deathStateName: Death
   destroyOnDeath: 1
   deathCleanupDelay: 0.8
+--- !u!114 &3533833769450934442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1228037107748692056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bf08ef56e5fb4a159ddb45e4392961c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8962829329213941539
 GameObject:
   m_ObjectHideFlags: 0
