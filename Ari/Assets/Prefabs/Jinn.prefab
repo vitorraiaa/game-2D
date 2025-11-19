@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 7135729633058751229}
   - component: {fileID: 613857491603383350}
   - component: {fileID: 4270733124697516377}
+  - component: {fileID: 5082352506991215918}
   m_Layer: 7
   m_Name: Jinn
   m_TagString: Untagged
@@ -238,6 +239,18 @@ MonoBehaviour:
   fireCooldown: 1.2
   fireFailSafeDelay: 0.18
   useAnimEvent: 1
+--- !u!114 &5082352506991215918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5394497102313972705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94eddea9439ff48e5828ac11751f85b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7087901882026101660
 GameObject:
   m_ObjectHideFlags: 0
