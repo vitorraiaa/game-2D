@@ -11,6 +11,7 @@ public class PlayerHealth : MonoBehaviour
     public string deathStateName = "Death"; // nome do state no Animator
     public bool destroyOnDeath = true;      // destrói o GO ao fim da animação
     public float deathCleanupDelay = 0.8f;  // fallback se não detectar o fim do state
+    public float musicFadeOnDeath = 0.3f;   // fade curto da música ao morrer
 
     int hp;
     bool dead;
@@ -33,6 +34,10 @@ public class PlayerHealth : MonoBehaviour
         if (dead || invulTimer > 0f) return;
 
         hp -= Mathf.Max(1, amount);
+
+        // SFX de dano
+        SfxManager.Instance?.PlayHurt();
+
         if (anim) anim.SetTrigger("Hurt");
         invulTimer = invulAfterHurt;
 
@@ -47,10 +52,14 @@ public class PlayerHealth : MonoBehaviour
         if (dead) return;
         dead = true;
 
-        // aciona animação de morte
+        // Para música de fundo e toca game over
+        SfxManager.Instance?.StopMusic(musicFadeOnDeath);
+        SfxManager.Instance?.PlayGameOver();
+
+        // Animação de morte
         if (anim) anim.SetTrigger("Dead");
 
-        // desativa controles / movimento / colisores, mas deixa o sprite/anim rodando
+        // Desativa controles / movimento / colisores, mas deixa o sprite/anim rodando
         var move = GetComponent<PlayerMovement2D>(); if (move) move.enabled = false;
         foreach (var c in GetComponentsInChildren<Collider2D>()) c.enabled = false;
         var rb = GetComponent<Rigidbody2D>(); if (rb) rb.simulated = false;

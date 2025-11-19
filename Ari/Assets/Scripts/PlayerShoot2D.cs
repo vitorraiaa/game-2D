@@ -71,6 +71,9 @@ public class PlayerShoot2D : MonoBehaviour
             return;
         }
 
+        // SFX de tiro
+        if (SfxManager.Instance) SfxManager.Instance.PlayShoot();
+
         SpawnBullet(bulletPrefab, bulletSpeed);
 
         if (animator)
@@ -84,6 +87,9 @@ public class PlayerShoot2D : MonoBehaviour
             Debug.LogWarning("[PlayerShoot] Faltou extraBulletPrefab ou shootPoint.");
             return;
         }
+
+        // SFX de tiro (também no extra, se quiser diferenciar, crie PlayShootExtra)
+        if (SfxManager.Instance) SfxManager.Instance.PlayShoot();
 
         SpawnBullet(extraBulletPrefab, extraBulletSpeed);
 

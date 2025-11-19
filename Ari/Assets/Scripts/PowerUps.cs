@@ -12,6 +12,7 @@ public class PowerUpPickup : MonoBehaviour
     public float bobbingSpeed = 2f;
 
     Vector3 basePos;
+    bool picked; // evita múltiplos triggers
 
     void Awake()
     {
@@ -33,17 +34,21 @@ public class PowerUpPickup : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log($"[PowerUpPickup] Trigger com '{other.name}' (layer={LayerMask.LayerToName(other.gameObject.layer)})");
+        if (picked) return; // já coletado
 
+        // Aceita colisão do Player ou de um filho do Player
         var movement = other.GetComponentInParent<PlayerMovement2D>();
         var shoot    = other.GetComponentInParent<PlayerShoot2D>();
 
         if (!movement && !shoot)
         {
-            Debug.Log("[PowerUpPickup] Não é player, ignorando.");
+            // Não é o player: ignora
             return;
         }
 
+        picked = true;
+
+        // Aplica o efeito
         switch (type)
         {
             case PowerUpType.HighJump:
@@ -62,6 +67,11 @@ public class PowerUpPickup : MonoBehaviour
                 }
                 break;
         }
+
+        // SFX de coleta
+        if (SfxManager.Instance) SfxManager.Instance.PlayPickup();
+
+        // Destroi o item
         Destroy(gameObject);
     }
 }
