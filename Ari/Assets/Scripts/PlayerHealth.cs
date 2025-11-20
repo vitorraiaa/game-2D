@@ -1,25 +1,29 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // <-- pra carregar cena
+using UnityEngine.SceneManagement;
 using System.Collections;
+using UnityEngine.Events; // ← NECESSÁRIO PARA A BARRA
 
 public class PlayerHealth : MonoBehaviour
 {
     [Header("Vida")]
     public int maxHP = 3;
-    public float invulAfterHurt = 0.2f; // janela anti-hit múltiplo
+    public float invulAfterHurt = 0.2f;
 
     [Header("Morte / Desaparecer")]
-    public string deathStateName = "Death"; // nome do state no Animator
-    public bool destroyOnDeath = true;      // destrói o GO ao fim da animação
-    public float deathCleanupDelay = 0.8f;  // fallback se não detectar o fim do state
-    public float musicFadeOnDeath = 0.3f;   // fade curto da música ao morrer
+    public string deathStateName = "Death";
+    public bool destroyOnDeath = true;
+    public float deathCleanupDelay = 0.8f;
+    public float musicFadeOnDeath = 0.3f;
 
     [Header("Game Over")]
-    public string gameOverSceneName = "GameOver"; // cena de Game Over
-    public float gameOverDelay = 1.0f;            // tempo até carregar Game Over
+    public string gameOverSceneName = "GameOver";
+    public float gameOverDelay = 1.0f;
 
     [Header("Morte por queda")]
-    public float killY = -20f; // se o Y do player ficar menor que isso, ele morre
+    public float killY = -20f;
+
+    // ← NECESSÁRIO PARA A BARRA DE VIDA
+    public UnityEvent<int, int> OnHealthChanged;
 
     int hp;
     bool dead;
@@ -30,13 +34,16 @@ public class PlayerHealth : MonoBehaviour
     {
         hp = maxHP;
         anim = GetComponent<Animator>();
+        
+        // ← NECESSÁRIO: Notifica a UI da vida inicial
+        OnHealthChanged?.Invoke(hp, maxHP);
     }
 
     void Update()
     {
         if (invulTimer > 0f) invulTimer -= Time.deltaTime;
 
-        // 🔥 LÓGICA DE MORTE POR QUEDA
+        // Morte por queda
         if (!dead && transform.position.y < killY)
         {
             HandleDeath();
@@ -49,11 +56,13 @@ public class PlayerHealth : MonoBehaviour
 
         hp -= Mathf.Max(1, amount);
 
-        // SFX de dano
         SfxManager.Instance?.PlayHurt();
 
         if (anim) anim.SetTrigger("Hurt");
         invulTimer = invulAfterHurt;
+
+        // ← NECESSÁRIO: Notifica mudança de vida
+        OnHealthChanged?.Invoke(hp, maxHP);
 
         if (hp <= 0)
         {
@@ -66,34 +75,27 @@ public class PlayerHealth : MonoBehaviour
         if (dead) return;
         dead = true;
 
-        // Para música de fundo e toca game over
         SfxManager.Instance?.StopMusic(musicFadeOnDeath);
         SfxManager.Instance?.PlayGameOver();
 
-        // Animação de morte
         if (anim) anim.SetTrigger("Dead");
 
-        // Desativa controles / movimento / colisores, mas deixa o sprite/anim rodando
         var move = GetComponent<PlayerMovement2D>(); if (move) move.enabled = false;
         foreach (var c in GetComponentsInChildren<Collider2D>()) c.enabled = false;
         var rb = GetComponent<Rigidbody2D>(); if (rb) rb.simulated = false;
 
-        // rotina de sumir
         if (destroyOnDeath)
             StartCoroutine(WaitAndDisappear());
 
-        // rotina de carregar Game Over
         StartCoroutine(LoadGameOverAfterDelay());
     }
 
     IEnumerator WaitAndDisappear()
     {
-        // Tenta esperar o fim do state "Death" (Layer 0)
         if (anim)
         {
-            // aguarda entrar no state Death
             bool entered = false;
-            float guard = 2.5f; // trava de segurança
+            float guard = 2.5f;
             while (guard > 0f)
             {
                 var st = anim.GetCurrentAnimatorStateInfo(0);
@@ -102,7 +104,6 @@ public class PlayerHealth : MonoBehaviour
                 yield return null;
             }
 
-            // aguarda terminar o state Death
             if (entered)
             {
                 while (true)
@@ -114,7 +115,6 @@ public class PlayerHealth : MonoBehaviour
             }
             else
             {
-                // caso não entre no state, usa fallback
                 yield return new WaitForSeconds(deathCleanupDelay);
             }
         }
@@ -123,10 +123,9 @@ public class PlayerHealth : MonoBehaviour
             yield return new WaitForSeconds(deathCleanupDelay);
         }
 
-        Destroy(gameObject); // some da tela e da cena
+        Destroy(gameObject);
     }
 
-    // OPCIONAL: chame este método via Animation Event no último frame do clip "Death"
     public void OnDeathAnimationFinished()
     {
         if (destroyOnDeath)
@@ -135,21 +134,23 @@ public class PlayerHealth : MonoBehaviour
 
     public void Heal(int amount)
     {
-    if (hp >= maxHP) return; // Já está com vida cheia
-    
-    hp += amount;
-    hp = Mathf.Min(hp, maxHP); // Não passa do máximo
-    
-    Debug.Log($"Player curou {amount} HP! Vida: {hp}/{maxHP}");
-    
-    // Feedback visual opcional
-    if (anim) anim.SetTrigger("Heal");
+        if (hp >= maxHP) return;
+        
+        hp += amount;
+        hp = Mathf.Min(hp, maxHP);
+        
+        Debug.Log($"Player curou {amount} HP! Vida: {hp}/{maxHP}");
+        
+        // ← NECESSÁRIO: Notifica mudança de vida
+        OnHealthChanged?.Invoke(hp, maxHP);
+        
+        if (anim) anim.SetTrigger("Heal");
+    }
+
     IEnumerator LoadGameOverAfterDelay()
     {
-        // espera um tempo (pra deixar a animação de morte aparecer bonitinha)
         yield return new WaitForSeconds(gameOverDelay);
 
-        // carrega a cena de Game Over
         if (!string.IsNullOrEmpty(gameOverSceneName))
         {
             SceneManager.LoadScene(gameOverSceneName);
