@@ -315,6 +315,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bf08ef56e5fb4a159ddb45e4392961c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameOverSceneName: EndGameScene
+  gameOverDelay: 1
 --- !u!1 &8962829329213941539
 GameObject:
   m_ObjectHideFlags: 0
