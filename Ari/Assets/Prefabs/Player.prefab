@@ -233,6 +233,7 @@ MonoBehaviour:
   hasExtraAttackPower: 0
   extraBulletPrefab: {fileID: 26892006197619871, guid: 5741f9f681dd7454190e14897f953aaa, type: 3}
   extraBulletSpeed: 20
+  extraAttackCooldown: 2.5
   animator: {fileID: 0}
 --- !u!114 &3512327951240252108
 MonoBehaviour:
@@ -301,6 +302,8 @@ MonoBehaviour:
   deathStateName: Death
   destroyOnDeath: 1
   deathCleanupDelay: 0.8
+  gameOverSceneName: EndGameScene
+  gameOverDelay: 1
 --- !u!1 &8962829329213941539
 GameObject:
   m_ObjectHideFlags: 0

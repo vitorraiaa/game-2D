@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement; // <-- pra carregar cena
 using System.Collections;
 
 public class PlayerHealth : MonoBehaviour
@@ -11,6 +12,13 @@ public class PlayerHealth : MonoBehaviour
     public string deathStateName = "Death"; // nome do state no Animator
     public bool destroyOnDeath = true;      // destrói o GO ao fim da animação
     public float deathCleanupDelay = 0.8f;  // fallback se não detectar o fim do state
+
+    [Header("Game Over")]
+    public string gameOverSceneName = "GameOver"; // cena de Game Over
+    public float gameOverDelay = 1.0f;            // tempo até carregar Game Over
+
+    [Header("Morte por queda")]
+    public float killY = -20f; // se o Y do player ficar menor que isso, ele morre
 
     int hp;
     bool dead;
@@ -26,6 +34,12 @@ public class PlayerHealth : MonoBehaviour
     void Update()
     {
         if (invulTimer > 0f) invulTimer -= Time.deltaTime;
+
+        // 🔥 LÓGICA DE MORTE POR QUEDA
+        if (!dead && transform.position.y < killY)
+        {
+            HandleDeath();
+        }
     }
 
     public void TakeDamage(int amount)
@@ -55,8 +69,12 @@ public class PlayerHealth : MonoBehaviour
         foreach (var c in GetComponentsInChildren<Collider2D>()) c.enabled = false;
         var rb = GetComponent<Rigidbody2D>(); if (rb) rb.simulated = false;
 
+        // rotina de sumir
         if (destroyOnDeath)
             StartCoroutine(WaitAndDisappear());
+
+        // rotina de carregar Game Over
+        StartCoroutine(LoadGameOverAfterDelay());
     }
 
     IEnumerator WaitAndDisappear()
@@ -104,5 +122,21 @@ public class PlayerHealth : MonoBehaviour
     {
         if (destroyOnDeath)
             Destroy(gameObject);
+    }
+
+    IEnumerator LoadGameOverAfterDelay()
+    {
+        // espera um tempo (pra deixar a animação de morte aparecer bonitinha)
+        yield return new WaitForSeconds(gameOverDelay);
+
+        // carrega a cena de Game Over
+        if (!string.IsNullOrEmpty(gameOverSceneName))
+        {
+            SceneManager.LoadScene(gameOverSceneName);
+        }
+        else
+        {
+            Debug.LogWarning("[PlayerHealth] gameOverSceneName não definido!");
+        }
     }
 }

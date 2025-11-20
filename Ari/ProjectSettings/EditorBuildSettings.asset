@@ -35,6 +35,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Cutscene_Victory.unity
     guid: b61f2b7979023422898ea519856acdf7
+  - enabled: 1
+    path: Assets/Scenes/EndGameScene.unity
+    guid: 156904498f5844e348176da09ae473ad
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

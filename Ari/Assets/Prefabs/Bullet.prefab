@@ -204,7 +204,7 @@ MonoBehaviour:
   damage: 1
   destroyOnHit: 1
   speed: 4
-  maxDistance: 20
+  maxDistance: 5
   animateByDistance: 1
   animStateName: Bullet_Fly
   debugLogs: 0
