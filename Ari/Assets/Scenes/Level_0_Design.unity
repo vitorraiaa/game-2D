@@ -3229,7 +3229,7 @@ Transform:
   m_GameObject: {fileID: 358303920}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 38, y: 4, z: -10.140071}
+  m_LocalPosition: {x: -7.2, y: -0.1, z: -10.140071}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -24776,7 +24776,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3701509908834261820, guid: 94702ab2dce724ae49de33b237a0aae7, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3701509908834261820, guid: 94702ab2dce724ae49de33b237a0aae7, type: 3}
       propertyPath: bounceForce
@@ -30576,11 +30576,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7560569244481166687, guid: 71001a89c7eb9466ea71629fbc143aae, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 38
+      value: -7.2
       objectReference: {fileID: 0}
     - target: {fileID: 7560569244481166687, guid: 71001a89c7eb9466ea71629fbc143aae, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 4
+      value: -0.1
       objectReference: {fileID: 0}
     - target: {fileID: 7560569244481166687, guid: 71001a89c7eb9466ea71629fbc143aae, type: 3}
       propertyPath: m_LocalPosition.z
@@ -31668,7 +31668,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3701509908834261820, guid: 2f0913275624c4f348ef3d0d2ae82f30, type: 3}
       propertyPath: m_Enabled
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3701509908834261820, guid: 2f0913275624c4f348ef3d0d2ae82f30, type: 3}
       propertyPath: bounceForce
@@ -31882,7 +31882,7 @@ Transform:
   m_GameObject: {fileID: 1605044566}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 38, y: 4, z: -10.140071}
+  m_LocalPosition: {x: -7.2, y: -0.1, z: -10.140071}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
