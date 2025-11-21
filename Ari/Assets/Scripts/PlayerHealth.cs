@@ -16,7 +16,7 @@ public class PlayerHealth : MonoBehaviour
     public float musicFadeOnDeath = 0.3f;
 
     [Header("Game Over")]
-    public string gameOverSceneName = "GameOver";
+    public string gameOverSceneName = "EndGameScene";
     public float gameOverDelay = 1.0f;
 
     [Header("Morte por queda")]
@@ -84,8 +84,9 @@ public class PlayerHealth : MonoBehaviour
         foreach (var c in GetComponentsInChildren<Collider2D>()) c.enabled = false;
         var rb = GetComponent<Rigidbody2D>(); if (rb) rb.simulated = false;
 
-        if (destroyOnDeath)
-            StartCoroutine(WaitAndDisappear());
+        // Remova ou comente esta linha:
+        // if (destroyOnDeath)
+        //     StartCoroutine(WaitAndDisappear());
 
         StartCoroutine(LoadGameOverAfterDelay());
     }
