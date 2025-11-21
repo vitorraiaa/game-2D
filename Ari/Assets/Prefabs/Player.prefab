@@ -48,6 +48,7 @@ GameObject:
   - component: {fileID: 3512327951240252108}
   - component: {fileID: 782829147327281835}
   - component: {fileID: 3533833769450934442}
+  - component: {fileID: 1944168110826841245}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -303,6 +304,25 @@ MonoBehaviour:
   deathStateName: Death
   destroyOnDeath: 1
   deathCleanupDelay: 0.8
+  musicFadeOnDeath: 0.3
+  gameOverSceneName: GameOver
+  gameOverDelay: 1
+  killY: -20
+  OnHealthChanged:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8234675165465353327, guid: 2f158053d9561420985427671433938c, type: 3}
+        m_TargetAssemblyTypeName: HealthBarUI, Assembly-CSharp
+        m_MethodName: OnPlayerHealthChanged
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &3533833769450934442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -315,8 +335,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bf08ef56e5fb4a159ddb45e4392961c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameOverSceneName: EndGameScene
-  gameOverDelay: 1
+--- !u!114 &1944168110826841245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1228037107748692056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf3c34e9048e947eeab90315bd96570b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthColor: {r: 1, g: 0.4, b: 0.4, a: 1}
+  speedColor: {r: 1, g: 0.9, b: 0.3, a: 1}
+  extraAttackColor: {r: 0.8, g: 0.4, b: 1, a: 1}
+  freezeColor: {r: 0.4, g: 0.8, b: 1, a: 1}
+  extraJumpColor: {r: 0.4, g: 1, b: 0.8, a: 1}
+  effectIntensity: 1
+  fadeSpeed: 6
+  pulseEffect: 1
+  pulseSpeed: 6
 --- !u!1 &8962829329213941539
 GameObject:
   m_ObjectHideFlags: 0

@@ -77,6 +77,14 @@ public class PotionPickup : MonoBehaviour
 
     void ApplyPotionEffect(GameObject player)
     {
+        // ✨ NOVO: Ativar efeito visual
+        PotionVisualEffect visualEffect = player.GetComponent<PotionVisualEffect>();
+        if (visualEffect != null)
+        {
+            float duration = GetEffectDuration();
+            visualEffect.ActivateEffect(potionType, duration);
+        }
+
         switch (potionType)
         {
             case PotionType.Health:
@@ -100,6 +108,26 @@ public class PotionPickup : MonoBehaviour
                 break;
         }
     }
+
+// ✨ NOVO: Método auxiliar para pegar a duração correta
+float GetEffectDuration()
+{
+    switch (potionType)
+    {
+        case PotionType.Health:
+            return 2f; // Efeito rápido só visual
+        case PotionType.Speed:
+            return speedDuration;
+        case PotionType.ExtraAttack:
+            return 10f; // Ou quanto tempo durar o extra attack
+        case PotionType.Freeze:
+            return freezeDuration;
+        case PotionType.ExtraJump:
+            return jumpDuration;
+        default:
+            return 5f;
+    }
+}
 
     void ApplyHealthPotion(GameObject player)
     {
